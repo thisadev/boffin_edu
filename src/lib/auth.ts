@@ -1,10 +1,11 @@
-import { NextAuthOptions } from "next-auth";
+import { NextAuthOptions, DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { ENV } from "@/lib/env";
 
-// Use a consistent secret key for development
-export const NEXTAUTH_SECRET = "boffin-institute-super-secret-key-for-development";
+// Use environment variable for the secret key
+const NEXTAUTH_SECRET = ENV.NEXTAUTH_SECRET;
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -36,8 +37,6 @@ export const authOptions: NextAuthOptions = {
         }
 
         // For regular users, check the database
-        // Note: In a production environment, you would use bcrypt to compare passwords
-        // but we're simplifying for development to avoid client-side bcrypt issues
         const user = await prisma.user.findUnique({
           where: {
             email: credentials.email,
@@ -50,10 +49,9 @@ export const authOptions: NextAuthOptions = {
         }
 
         // Simple password check for development
-        // In production, use a server API route with bcrypt for secure password comparison
         if (user.password === credentials.password) {
           return {
-            id: user.id,
+            id: String(user.id), // Ensure ID is always a string
             email: user.email,
             name: `${user.firstName} ${user.lastName}`,
             role: user.role,
@@ -101,11 +99,11 @@ declare module "next-auth" {
     role: string;
     id: string;
   }
-}
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    role: string;
-    id: string;
+  interface Session {
+    user: {
+      id: string;
+      role: string;
+    } & DefaultSession["user"];
   }
 }

@@ -100,12 +100,6 @@ export default function AdminDashboard() {
               Welcome, {user.name || user.email}
             </span>
           )}
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
-          >
-            Logout
-          </button>
         </div>
       </div>
 

@@ -249,6 +249,7 @@ model User {
   updatedAt     DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
   reviews       CourseReview[]
   registrations Registration[]
+  uploadedMedia MediaAsset[]
 
   @@map("users")
 }
@@ -296,4 +297,77 @@ model Testimonial {
   registration    Registration @relation(fields: [registrationId], references: [id])
 
   @@map("testimonials")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+}
+
+enum PlaceholderType {
+  LOGO
+  FAVICON
+  FULL_LOGO
+  PARTNERSHIP_LOGO
+  ACCREDITATION_LOGO
+  COURSE_LOGO
+  COURSE_IMAGE
+  TESTIMONIAL_IMAGE
+  PROMO_VIDEO
+  HERO_BACKGROUND
+  OTHER
+}
+
+model MediaAsset {
+  id                String                     @id @default(uuid())
+  fileName          String                     @map("file_name") @db.VarChar(255)
+  originalFileName  String                     @map("original_file_name") @db.VarChar(255)
+  fileSize          Int
+  mediaType         MediaType                  @map("media_type")
+  mimeType          String                     @map("mime_type") @db.VarChar(100)
+  storagePath       String                     @map("storage_path") @db.VarChar(500)
+  publicUrl         String                     @map("public_url") @db.VarChar(500)
+  altText           String?                    @map("alt_text") @db.VarChar(255)
+  title             String?                    @db.VarChar(255)
+  description       String?
+  width             Int?
+  height            Int?
+  duration          Int?
+  uploadedById      Int                        @map("uploaded_by_id")
+  createdAt         DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime                   @default(now()) @map("updated_at") @db.Timestamptz(6)
+  uploadedBy        User                       @relation(fields: [uploadedById], references: [id])
+  placeholders      MediaPlaceholderAssignment[]
+
+  @@map("media_assets")
+}
+
+model MediaPlaceholder {
+  id               Int                         @id @default(autoincrement())
+  name             String                      @db.VarChar(100)
+  description      String?
+  placeholderType  PlaceholderType             @map("placeholder_type")
+  context          String?                     @db.VarChar(100)
+  contextId        String?                     @map("context_id")
+  createdAt        DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime                    @default(now()) @map("updated_at") @db.Timestamptz(6)
+  mediaAssets      MediaPlaceholderAssignment[]
+
+  @@map("media_placeholders")
+}
+
+model MediaPlaceholderAssignment {
+  placeholderId  Int              @map("placeholder_id")
+  mediaAssetId   String           @map("media_asset_id")
+  isActive       Boolean          @default(true) @map("is_active")
+  orderIndex     Int              @default(0) @map("order_index")
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  placeholder    MediaPlaceholder  @relation(fields: [placeholderId], references: [id], onDelete: Cascade)
+  mediaAsset     MediaAsset       @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+
+  @@id([placeholderId, mediaAssetId])
+  @@map("media_placeholder_assignments")
 }
