@@ -99,21 +99,61 @@ export default function RegisterPage() {
     const categoryParam = searchParams?.get('category');
     const courseIdParam = searchParams?.get('courseId');
     
-    // Verify that the course exists and matches the category
-    if (courseIdParam) {
-      const selectedCourse = courses.find(course => course.id === courseIdParam);
-      if (selectedCourse && (!categoryParam || selectedCourse.category === categoryParam)) {
-        // If course exists but category doesn't match or isn't provided, use the course's category
-        if (!categoryParam || selectedCourse.category !== categoryParam) {
-          setFormData(prev => ({
-            ...prev,
-            category: selectedCourse.category,
-            courseId: courseIdParam
-          }));
-        }
+    if (categoryParam) {
+      // Find the category by slug and use its ID
+      const category = courseCategories.find(cat => cat.slug === categoryParam || cat.id.toLowerCase() === categoryParam.toLowerCase());
+      if (category) {
+        // Map the category slug to the actual category value used in the courses data
+        const mappedCategory = category.id === 'dasaca' ? 'DASACA' : 
+                               category.id === 'bootcamp' ? 'BootCamp' : 
+                               category.id === 'corporate' ? 'Corporate' : '';
+        
+        setFormData(prev => ({
+          ...prev,
+          category: mappedCategory
+        }));
       }
     }
-  }, [searchParams]);
+    
+    // Verify that the course exists and set it in the form
+    if (courseIdParam) {
+      // First try to find the course by its ID in the static data
+      let selectedCourse = courses.find(course => course.id === courseIdParam);
+      
+      // If not found, it might be a numeric ID from the database
+      if (!selectedCourse && !isNaN(Number(courseIdParam))) {
+        // Fetch the course details from the API
+        const fetchCourseDetails = async () => {
+          try {
+            // First, try to find a course with this ID in our filtered courses
+            if (formData.category) {
+              const categoryCourses = courses.filter(course => course.category === formData.category);
+              if (categoryCourses.length > 0) {
+                // For now, just use the first course in the category as a fallback
+                selectedCourse = categoryCourses[0];
+                
+                setFormData(prev => ({
+                  ...prev,
+                  courseId: selectedCourse.id
+                }));
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching course details:', error);
+          }
+        };
+        
+        fetchCourseDetails();
+      } else if (selectedCourse) {
+        setFormData(prev => ({
+          ...prev,
+          courseId: selectedCourse.id,
+          // If we already set the category from the URL param, don't override it
+          ...(prev.category === '' ? { category: selectedCourse.category } : {})
+        }));
+      }
+    }
+  }, [searchParams, formData.category]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

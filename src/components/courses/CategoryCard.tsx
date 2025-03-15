@@ -1,11 +1,17 @@
 "use client";
 
 import Link from 'next/link';
-import { CourseCategory } from '@/data/courses';
 import PlaceholderImage from '@/components/ui/PlaceholderImage';
 
 interface CategoryCardProps {
-  category: CourseCategory;
+  category: {
+    id: number;
+    name: string;
+    description: string | null;
+    slug: string;
+    imageUrl: string | null;
+    courseCount: number;
+  };
 }
 
 export default function CategoryCard({ category }: CategoryCardProps) {
@@ -16,19 +22,23 @@ export default function CategoryCard({ category }: CategoryCardProps) {
     >
       <div className="relative h-48 w-full">
         <PlaceholderImage 
-          src={category.image} 
+          src={category.imageUrl || ''} 
           fallbackSrc="/images/category-placeholder.jpg"
-          alt={category.title}
+          alt={category.name}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
-          <h3 className="text-white text-xl font-bold p-6">{category.title}</h3>
+          <h3 className="text-white text-xl font-bold p-6">{category.name}</h3>
         </div>
       </div>
       <div className="p-6">
         <p className="text-gray-700">{category.description}</p>
+        <div className="mt-4 flex justify-between items-center">
+          <span className="text-sm text-gray-500">{category.courseCount} course{category.courseCount !== 1 ? 's' : ''}</span>
+          <span className="text-primary font-medium text-sm">View Courses</span>
+        </div>
       </div>
     </Link>
   );

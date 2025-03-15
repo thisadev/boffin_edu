@@ -43,8 +43,8 @@ export default function Header() {
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link href="/login" className="text-gray-600 hover:text-primary transition-colors">
-              Log In
+            <Link href="/admin/login" className="text-gray-600 hover:text-primary transition-colors">
+              Admin
             </Link>
             <Link 
               href="/register" 
@@ -55,71 +55,76 @@ export default function Header() {
           </div>
 
           {/* Mobile Menu Button */}
-          <button 
-            className="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+            >
+              <span className="sr-only">Open main menu</span>
               {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
               )}
-            </svg>
-          </button>
+            </button>
+          </div>
         </div>
+      </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden mt-4 pb-4">
-            <nav className="flex flex-col space-y-4">
+      {/* Mobile Menu */}
+      <div className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`}>
+        <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <div className="flex flex-col space-y-2">
               <Link 
                 href="/" 
-                className="text-gray-600 hover:text-primary transition-colors"
+                className="text-gray-600 hover:text-primary transition-colors block px-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link 
                 href="/courses" 
-                className="text-gray-600 hover:text-primary transition-colors"
+                className="text-gray-600 hover:text-primary transition-colors block px-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Courses
               </Link>
               <Link 
                 href="/about" 
-                className="text-gray-600 hover:text-primary transition-colors"
+                className="text-gray-600 hover:text-primary transition-colors block px-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About Us
               </Link>
               <Link 
                 href="/contact" 
-                className="text-gray-600 hover:text-primary transition-colors"
+                className="text-gray-600 hover:text-primary transition-colors block px-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
               </Link>
-              <div className="flex space-x-4 pt-2">
+              <div className="flex space-x-4 pt-2 px-3">
                 <Link 
-                  href="/login" 
+                  href="/admin/login" 
                   className="text-gray-600 hover:text-primary transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Log In
+                  Admin
                 </Link>
                 <Link 
                   href="/register" 
-                  className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors"
+                  className="bg-primary text-white px-3 py-1 rounded hover:bg-primary/90 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Register
                 </Link>
               </div>
-            </nav>
           </div>
-        )}
+        </div>
       </div>
     </header>
   );
