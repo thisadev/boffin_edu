@@ -4,17 +4,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
+import TestimonialSlider from '@/components/testimonials/TestimonialSlider';
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       {/* Hero Section */}
-      <section className="bg-boffin-background text-white py-16">
+      <section className="bg-white py-16 relative">
         <Container>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4">Empower Your Future with Data Analytics</h1>
-              <p className="text-lg mb-6">Join Boffin Institute's cutting-edge programs to master the skills that drive today's data-driven world.</p>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-boffin-background">Empower Your Future with Data Analytics</h1>
+              <p className="text-gray-600 text-lg mb-6">Join Boffin Institute's cutting-edge programs to master the skills that drive today's data-driven world.</p>
               <div className="flex flex-wrap gap-4">
                 <Button variant="boffin" size="lg" asChild>
                   <Link href="/courses">Explore Courses</Link>
@@ -38,10 +39,15 @@ export default function Home() {
             </div>
           </div>
         </Container>
+        
+        {/* Add a subtle divider at the bottom of the hero section */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
       </section>
 
       {/* Featured Courses Section */}
-      <section className="py-16">
+      <section className="py-16 relative">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+        
         <Container>
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Our Featured Programs</h2>
@@ -80,6 +86,8 @@ export default function Home() {
             </div>
           </div>
         </Container>
+        
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
       </section>
 
       {/* Why Choose Us Section */}
@@ -124,12 +132,18 @@ export default function Home() {
         </Container>
       </section>
 
+      {/* Student Testimonials Section */}
+      <TestimonialSlider />
+
       {/* CTA Section */}
-      <section className="py-16 bg-boffin-background text-white">
+      <section className="py-16 bg-white relative">
+        {/* Add a subtle divider at the top of the section */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+        
         <Container>
           <div className="text-center">
-            <h2 className="text-3xl font-bold mb-4">Ready to Transform Your Career?</h2>
-            <p className="text-lg mb-8 max-w-2xl mx-auto">Join thousands of successful professionals who have advanced their careers with Boffin Institute.</p>
+            <h2 className="text-3xl font-bold mb-4 text-boffin-background">Ready to Transform Your Career?</h2>
+            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">Join thousands of successful professionals who have advanced their careers with Boffin Institute.</p>
             <Button variant="boffin" size="lg" asChild>
               <Link href="/register">Register Now</Link>
             </Button>

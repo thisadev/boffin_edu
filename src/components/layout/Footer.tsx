@@ -5,7 +5,10 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-boffin-background text-white pt-16 pb-8">
+    <footer className="bg-boffin-background text-white pt-16 pb-8 relative">
+      {/* Add a subtle divider at the top of the footer */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gray-100 to-transparent opacity-30"></div>
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Logo and About */}

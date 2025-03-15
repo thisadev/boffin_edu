@@ -38,8 +38,8 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    // Ensure params.slug is properly typed
-    const slug = params.slug;
+    // Ensure params is awaited and properly typed
+    const { slug } = params;
     
     const category = await prisma.courseCategory.findUnique({
       where: {

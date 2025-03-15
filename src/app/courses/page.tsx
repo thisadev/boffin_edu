@@ -79,7 +79,7 @@ export default function CoursesPage() {
   }, []);
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-boffin-background min-h-screen">
       {/* Hero Section */}
       <section className="bg-boffin-background text-white py-16">
         <Container>
@@ -93,7 +93,7 @@ export default function CoursesPage() {
       </section>
       
       {/* Course Categories Section */}
-      <section className="py-16">
+      <section className="py-16 bg-white">
         <Container>
           <div className="py-12">
             <h1 className="text-4xl font-bold text-boffin-background mb-4">Our Courses</h1>

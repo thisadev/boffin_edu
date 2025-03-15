@@ -4,8 +4,8 @@ export default function CoursesLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container-custom py-16">
+    <div className="bg-boffin-background min-h-screen">
+      <div className="container-custom">
         {children}
       </div>
     </div>

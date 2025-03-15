@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,164 +7,133 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Course Categories
 model CourseCategory {
   id          Int      @id @default(autoincrement())
   name        String   @db.VarChar(100)
-  description String?  @db.Text
+  description String?
   slug        String   @unique @db.VarChar(100)
-  imageUrl    String?  @db.VarChar(255) @map("image_url")
+  imageUrl    String?  @map("image_url") @db.VarChar(255)
   createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
   isActive    Boolean  @default(true) @map("is_active")
-
-  // Relations
   courses     Course[]
 
   @@map("course_categories")
 }
 
-// Courses
 model Course {
-  id                  Int       @id @default(autoincrement())
-  categoryId          Int       @map("category_id")
-  title               String    @db.VarChar(200)
-  shortDescription    String    @map("short_description") @db.VarChar(500)
-  longDescription     String?   @map("long_description") @db.Text
-  learningOutcomes    String[]  @map("learning_outcomes")
-  prerequisites       String[]  
-  targetAudience      String?   @map("target_audience") @db.Text
-  slug                String    @unique @db.VarChar(200)
-  featuredImageUrl    String?   @map("featured_image_url") @db.VarChar(255)
-  galleryImages       String[]  @map("gallery_images")
-  curriculumPdfUrl    String?   @map("curriculum_pdf_url") @db.VarChar(255)
-  
-  // Course details
-  level               String?   @db.VarChar(50)
-  deliveryMode        String?   @map("delivery_mode") @db.VarChar(50)
-  language            String    @default("English") @db.VarChar(50)
-  durationWeeks       Int?      @map("duration_weeks")
-  durationHours       Int?      @map("duration_hours")
-  startDate           DateTime? @map("start_date") @db.Date
-  endDate             DateTime? @map("end_date") @db.Date
-  scheduleDetails     String?   @map("schedule_details") @db.Text
-  
-  // Pricing information
-  regularPrice        Decimal   @map("regular_price") @db.Decimal(10, 2)
-  salePrice           Decimal?  @map("sale_price") @db.Decimal(10, 2)
-  saleStartDate       DateTime? @map("sale_start_date") @db.Timestamptz(6)
-  saleEndDate         DateTime? @map("sale_end_date") @db.Timestamptz(6)
-  
-  // Certification
-  certificationIncluded Boolean   @default(false) @map("certification_included")
-  certificationDetails  String?   @map("certification_details") @db.Text
-  
-  // SEO and metadata
-  metaTitle           String?   @map("meta_title") @db.VarChar(200)
-  metaDescription     String?   @map("meta_description") @db.VarChar(500)
-  metaKeywords        String?   @map("meta_keywords") @db.VarChar(255)
-  
-  // Status and timestamps
-  status              String    @default("draft") @db.VarChar(50)
-  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt           DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
-  publishedAt         DateTime? @map("published_at") @db.Timestamptz(6)
-
-  // Relations
-  category            CourseCategory @relation(fields: [categoryId], references: [id])
-  modules             CourseModule[]
-  discounts           CourseDiscount[]
-  faqs                CourseFaq[]
-  reviews             CourseReview[]
-  registrations       Registration[]
-  bundleItems         BundleCourse[]
-  instructors         CourseInstructor[]
+  id                    Int                @id @default(autoincrement())
+  categoryId            Int                @map("category_id")
+  title                 String             @db.VarChar(200)
+  shortDescription      String             @map("short_description") @db.VarChar(500)
+  longDescription       String?            @map("long_description")
+  learningOutcomes      String[]           @map("learning_outcomes")
+  prerequisites         String[]
+  targetAudience        String?            @map("target_audience")
+  slug                  String             @unique @db.VarChar(200)
+  featuredImageUrl      String?            @map("featured_image_url") @db.VarChar(255)
+  galleryImages         String[]           @map("gallery_images")
+  curriculumPdfUrl      String?            @map("curriculum_pdf_url") @db.VarChar(255)
+  level                 String?            @db.VarChar(50)
+  deliveryMode          String?            @map("delivery_mode") @db.VarChar(50)
+  language              String             @default("English") @db.VarChar(50)
+  durationWeeks         Int?               @map("duration_weeks")
+  durationHours         Int?               @map("duration_hours")
+  startDate             DateTime?          @map("start_date") @db.Date
+  endDate               DateTime?          @map("end_date") @db.Date
+  scheduleDetails       String?            @map("schedule_details")
+  regularPrice          Decimal            @map("regular_price") @db.Decimal(10, 2)
+  salePrice             Decimal?           @map("sale_price") @db.Decimal(10, 2)
+  saleStartDate         DateTime?          @map("sale_start_date") @db.Timestamptz(6)
+  saleEndDate           DateTime?          @map("sale_end_date") @db.Timestamptz(6)
+  certificationIncluded Boolean            @default(false) @map("certification_included")
+  certificationDetails  String?            @map("certification_details")
+  metaTitle             String?            @map("meta_title") @db.VarChar(200)
+  metaDescription       String?            @map("meta_description") @db.VarChar(500)
+  metaKeywords          String?            @map("meta_keywords") @db.VarChar(255)
+  status                String             @default("draft") @db.VarChar(50)
+  createdAt             DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
+  publishedAt           DateTime?          @map("published_at") @db.Timestamptz(6)
+  bundleItems           BundleCourse[]
+  discounts             CourseDiscount[]
+  faqs                  CourseFaq[]
+  instructors           CourseInstructor[]
+  modules               CourseModule[]
+  reviews               CourseReview[]
+  category              CourseCategory     @relation(fields: [categoryId], references: [id])
+  registrations         Registration[]
 
   @@map("courses")
 }
 
-// Course Modules
 model CourseModule {
-  id             Int      @id @default(autoincrement())
-  courseId       Int      @map("course_id")
-  title          String   @db.VarChar(200)
-  description    String?  @db.Text
-  orderIndex     Int      @map("order_index")
-  durationHours  Decimal? @map("duration_hours") @db.Decimal(5, 2)
-  isFreePreview  Boolean  @default(false) @map("is_free_preview")
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
-  course         Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  topics         ModuleTopic[]
+  id            Int           @id @default(autoincrement())
+  courseId      Int           @map("course_id")
+  title         String        @db.VarChar(200)
+  description   String?
+  orderIndex    Int           @map("order_index")
+  durationHours Decimal?      @map("duration_hours") @db.Decimal(5, 2)
+  isFreePreview Boolean       @default(false) @map("is_free_preview")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+  course        Course        @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topics        ModuleTopic[]
 
   @@map("course_modules")
 }
 
-// Module Topics
 model ModuleTopic {
-  id                 Int      @id @default(autoincrement())
-  moduleId           Int      @map("module_id")
-  title              String   @db.VarChar(200)
-  description        String?  @db.Text
-  content            String?  @db.Text
-  orderIndex         Int      @map("order_index")
-  durationMinutes    Int?     @map("duration_minutes")
-  videoUrl           String?  @map("video_url") @db.VarChar(255)
-  audioUrl           String?  @map("audio_url") @db.VarChar(255)
-  presentationUrl    String?  @map("presentation_url") @db.VarChar(255)
-  additionalResources Json?    @map("additional_resources") @db.JsonB
-  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt          DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
-  module             CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  learningObjectives LearningObjective[]
+  id                  Int                 @id @default(autoincrement())
+  moduleId            Int                 @map("module_id")
+  title               String              @db.VarChar(200)
+  description         String?
+  content             String?
+  orderIndex          Int                 @map("order_index")
+  durationMinutes     Int?                @map("duration_minutes")
+  videoUrl            String?             @map("video_url") @db.VarChar(255)
+  audioUrl            String?             @map("audio_url") @db.VarChar(255)
+  presentationUrl     String?             @map("presentation_url") @db.VarChar(255)
+  additionalResources Json?               @map("additional_resources")
+  createdAt           DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime            @default(now()) @map("updated_at") @db.Timestamptz(6)
+  learningObjectives  LearningObjective[]
+  module              CourseModule        @relation(fields: [moduleId], references: [id], onDelete: Cascade)
 
   @@map("module_topics")
 }
 
-// Learning Objectives
 model LearningObjective {
-  id          Int      @id @default(autoincrement())
-  topicId     Int      @map("topic_id")
-  description String   @db.Text
-  orderIndex  Int      @map("order_index")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
+  id          Int         @id @default(autoincrement())
+  topicId     Int         @map("topic_id")
+  description String
+  orderIndex  Int         @map("order_index")
+  createdAt   DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime    @default(now()) @map("updated_at") @db.Timestamptz(6)
   topic       ModuleTopic @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
   @@map("learning_objectives")
 }
 
-// Instructors
 model Instructor {
-  id              Int      @id @default(autoincrement())
-  name            String   @db.VarChar(100)
-  bio             String?  @db.Text
-  profileImageUrl String?  @map("profile_image_url") @db.VarChar(255)
-  expertise       String[]
-  email           String?  @db.VarChar(100)
-  socialLinks     Json?    @map("social_links") @db.JsonB
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
+  id                Int                @id @default(autoincrement())
+  name              String             @db.VarChar(100)
+  bio               String?
+  profileImageUrl   String?            @map("profile_image_url") @db.VarChar(255)
+  expertise         String[]
+  email             String?            @db.VarChar(100)
+  socialLinks       Json?              @map("social_links")
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
   courseInstructors CourseInstructor[]
 
   @@map("instructors")
 }
 
-// Course Instructors (Junction Table)
 model CourseInstructor {
   courseId     Int        @map("course_id")
   instructorId Int        @map("instructor_id")
   createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-
-  // Relations
   course       Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
   instructor   Instructor @relation(fields: [instructorId], references: [id], onDelete: Cascade)
 
@@ -178,73 +141,61 @@ model CourseInstructor {
   @@map("course_instructors")
 }
 
-// Course Discounts
 model CourseDiscount {
-  id           Int      @id @default(autoincrement())
-  courseId     Int      @map("course_id")
-  discountType String   @map("discount_type") @db.VarChar(50)
-  discountValue Decimal  @map("discount_value") @db.Decimal(10, 2)
-  startDate    DateTime? @map("start_date") @db.Timestamptz(6)
-  endDate      DateTime? @map("end_date") @db.Timestamptz(6)
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
-  course       Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id            Int       @id @default(autoincrement())
+  courseId      Int       @map("course_id")
+  discountType  String    @map("discount_type") @db.VarChar(50)
+  discountValue Decimal   @map("discount_value") @db.Decimal(10, 2)
+  startDate     DateTime? @map("start_date") @db.Timestamptz(6)
+  endDate       DateTime? @map("end_date") @db.Timestamptz(6)
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  course        Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@map("course_discounts")
 }
 
-// Coupons
 model Coupon {
-  id                 Int      @id @default(autoincrement())
-  code               String   @unique @db.VarChar(50)
-  discountType       String   @map("discount_type") @db.VarChar(50)
-  discountValue      Decimal  @map("discount_value") @db.Decimal(10, 2)
-  startDate          DateTime? @map("start_date") @db.Timestamptz(6)
-  endDate            DateTime? @map("end_date") @db.Timestamptz(6)
-  maxUses            Int?     @map("max_uses")
-  currentUses        Int      @default(0) @map("current_uses")
-  minPurchaseAmount  Decimal  @default(0) @map("min_purchase_amount") @db.Decimal(10, 2)
-  applicableCourseIds Int[]    @map("applicable_course_ids")
-  isActive           Boolean  @default(true) @map("is_active")
-  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt          DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
-  registrations      Registration[]
+  id                  Int            @id @default(autoincrement())
+  code                String         @unique @db.VarChar(50)
+  discountType        String         @map("discount_type") @db.VarChar(50)
+  discountValue       Decimal        @map("discount_value") @db.Decimal(10, 2)
+  startDate           DateTime?      @map("start_date") @db.Timestamptz(6)
+  endDate             DateTime?      @map("end_date") @db.Timestamptz(6)
+  maxUses             Int?           @map("max_uses")
+  currentUses         Int            @default(0) @map("current_uses")
+  minPurchaseAmount   Decimal        @default(0) @map("min_purchase_amount") @db.Decimal(10, 2)
+  applicableCourseIds Int[]          @map("applicable_course_ids")
+  isActive            Boolean        @default(true) @map("is_active")
+  createdAt           DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+  registrations       Registration[]
 
   @@map("coupons")
 }
 
-// Course Bundles
 model CourseBundle {
-  id               Int      @id @default(autoincrement())
-  name             String   @db.VarChar(200)
-  description      String?  @db.Text
-  featuredImageUrl String?  @map("featured_image_url") @db.VarChar(255)
-  regularPrice     Decimal  @map("regular_price") @db.Decimal(10, 2)
-  bundlePrice      Decimal  @map("bundle_price") @db.Decimal(10, 2)
-  startDate        DateTime? @map("start_date") @db.Timestamptz(6)
-  endDate          DateTime? @map("end_date") @db.Timestamptz(6)
-  isActive         Boolean  @default(true) @map("is_active")
-  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
+  id               Int            @id @default(autoincrement())
+  name             String         @db.VarChar(200)
+  description      String?
+  featuredImageUrl String?        @map("featured_image_url") @db.VarChar(255)
+  regularPrice     Decimal        @map("regular_price") @db.Decimal(10, 2)
+  bundlePrice      Decimal        @map("bundle_price") @db.Decimal(10, 2)
+  startDate        DateTime?      @map("start_date") @db.Timestamptz(6)
+  endDate          DateTime?      @map("end_date") @db.Timestamptz(6)
+  isActive         Boolean        @default(true) @map("is_active")
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
   bundleCourses    BundleCourse[]
 
   @@map("course_bundles")
 }
 
-// Bundle Courses (Junction Table)
 model BundleCourse {
   bundleId  Int          @map("bundle_id")
   courseId  Int          @map("course_id")
   createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
-
-  // Relations
   bundle    CourseBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
   course    Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
@@ -252,66 +203,56 @@ model BundleCourse {
   @@map("bundle_courses")
 }
 
-// Course Reviews
 model CourseReview {
   id         Int      @id @default(autoincrement())
   courseId   Int      @map("course_id")
   userId     Int      @map("user_id")
   rating     Int
-  reviewText String?  @map("review_text") @db.Text
+  reviewText String?  @map("review_text")
   isApproved Boolean  @default(false) @map("is_approved")
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
   course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("course_reviews")
 }
 
-// Course FAQs
 model CourseFaq {
   id         Int      @id @default(autoincrement())
   courseId   Int      @map("course_id")
-  question   String   @db.Text
-  answer     String   @db.Text
+  question   String
+  answer     String
   orderIndex Int      @map("order_index")
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
   course     Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@map("course_faqs")
 }
 
-// Users (Students/Admins)
 model User {
-  id                Int      @id @default(autoincrement())
-  firstName         String   @map("first_name") @db.VarChar(100)
-  lastName          String   @map("last_name") @db.VarChar(100)
-  email             String   @unique @db.VarChar(100)
-  password          String?  @db.VarChar(255)
-  phone             String?  @db.VarChar(20)
-  address           String?  @db.VarChar(255)
-  city              String?  @db.VarChar(100)
-  state             String?  @db.VarChar(100)
-  zipCode           String?  @map("zip_code") @db.VarChar(20)
-  country           String?  @db.VarChar(100)
-  role              String   @default("student") @db.VarChar(20)
-  isActive          Boolean  @default(true) @map("is_active")
-  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
-  registrations     Registration[]
-  reviews           CourseReview[]
+  id            Int            @id @default(autoincrement())
+  firstName     String         @map("first_name") @db.VarChar(100)
+  lastName      String         @map("last_name") @db.VarChar(100)
+  email         String         @unique @db.VarChar(100)
+  password      String?        @db.VarChar(255)
+  phone         String?        @db.VarChar(20)
+  address       String?        @db.VarChar(255)
+  city          String?        @db.VarChar(100)
+  state         String?        @db.VarChar(100)
+  zipCode       String?        @map("zip_code") @db.VarChar(20)
+  country       String?        @db.VarChar(100)
+  role          String         @default("student") @db.VarChar(20)
+  isActive      Boolean        @default(true) @map("is_active")
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
+  reviews       CourseReview[]
+  registrations Registration[]
 
   @@map("users")
 }
 
-// Registrations
 model Registration {
   id                   Int       @id @default(autoincrement())
   userId               Int       @map("user_id")
@@ -320,21 +261,39 @@ model Registration {
   status               String    @default("pending") @db.VarChar(20)
   couponId             Int?      @map("coupon_id")
   finalPrice           Decimal   @map("final_price") @db.Decimal(10, 2)
-  additionalProducts   Json?     @map("additional_products") @db.JsonB
-  specialRequirements  String?   @map("special_requirements") @db.Text
-  categorySpecificData Json?     @map("category_specific_data") @db.JsonB
+  additionalProducts   Json?     @map("additional_products")
+  specialRequirements  String?   @map("special_requirements")
+  categorySpecificData Json?     @map("category_specific_data")
   educationLevel       String?   @map("education_level") @db.VarChar(100)
-  workExperience       String?   @map("work_experience") @db.Text
+  workExperience       String?   @map("work_experience")
   hearAboutUs          String?   @map("hear_about_us") @db.VarChar(100)
   approvedById         Int?      @map("approved_by_id")
   approvalDate         DateTime? @map("approval_date") @db.Timestamptz(6)
   createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt            DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  // Relations
-  user                 User      @relation(fields: [userId], references: [id])
-  course               Course    @relation(fields: [courseId], references: [id])
   coupon               Coupon?   @relation(fields: [couponId], references: [id])
+  course               Course    @relation(fields: [courseId], references: [id])
+  user                 User      @relation(fields: [userId], references: [id])
+  testimonials         Testimonial[]
 
   @@map("registrations")
+}
+
+model Testimonial {
+  id              String       @id @default(uuid())
+  registrationId  Int          @map("registration_id")
+  content         String
+  rating          Int
+  designation     String?
+  workplace       String?
+  university      String?
+  profileImageUrl String?      @map("profile_image_url")
+  isActive        Boolean      @default(true) @map("is_active")
+  isFeatured      Boolean      @default(false) @map("is_featured")
+  createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  
+  registration    Registration @relation(fields: [registrationId], references: [id])
+
+  @@map("testimonials")
 }
