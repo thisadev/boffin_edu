@@ -110,35 +110,43 @@ export default function RegistrationsPage() {
       }
       
       const data = await response.json();
-      setRegistrations(data);
+      // Check if data is an object with registrations property or an array
+      const registrationsData = Array.isArray(data) ? data : data.registrations || [];
+      
+      setRegistrations(registrationsData);
       
       // Group by category
       const categories: { [key: number]: CategoryGroup } = {};
       
       // Process registrations
-      data.forEach((reg: Registration) => {
-        const categoryId = reg.course.category.id;
+      if (Array.isArray(registrationsData)) {
+        registrationsData.forEach((reg: Registration) => {
+          const categoryId = reg.course.category.id;
+          
+          // Create category group if it doesn't exist
+          if (!categories[categoryId]) {
+            categories[categoryId] = {
+              id: categoryId,
+              name: reg.course.category.name,
+              registrations: [],
+            };
+          }
+          
+          // Add registration to category group
+          categories[categoryId].registrations.push(reg);
+        });
         
-        // Create category group if it doesn't exist
-        if (!categories[categoryId]) {
-          categories[categoryId] = {
-            id: categoryId,
-            name: reg.course.category.name,
-            registrations: [],
-          };
-        }
+        // Convert to array and sort
+        const groupsArray = Object.values(categories).sort((a, b) => a.name.localeCompare(b.name));
+        setCategoryGroups(groupsArray);
         
-        // Add registration to category group
-        categories[categoryId].registrations.push(reg);
-      });
-      
-      // Convert to array and sort
-      const groupsArray = Object.values(categories).sort((a, b) => a.name.localeCompare(b.name));
-      setCategoryGroups(groupsArray);
-      
-      // Filter by status
-      setPendingRegistrations(data.filter((reg: Registration) => reg.status === "pending"));
-      setConfirmedRegistrations(data.filter((reg: Registration) => reg.status === "confirmed"));
+        // Filter by status
+        setPendingRegistrations(registrationsData.filter((reg: Registration) => reg.status === "pending"));
+        setConfirmedRegistrations(registrationsData.filter((reg: Registration) => reg.status === "confirmed"));
+      } else {
+        console.error("Registrations data is not an array:", registrationsData);
+        setError("Invalid data format received from server");
+      }
       
     } catch (err) {
       console.error("Error fetching registrations:", err);
@@ -181,163 +189,137 @@ export default function RegistrationsPage() {
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Course Registrations</h1>
-          <p className="text-muted-foreground">Manage and review student registrations</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button variant="default" size="sm" onClick={handleRetry}>
-            Refresh
-          </Button>
-        </div>
-      </div>
-
-      {error ? (
-        <Card className="mb-6 border-red-200 bg-red-50">
-          <CardContent className="pt-6">
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="h-5 w-5 text-red-600" />
-              <div>
-                <p className="font-medium text-red-900">{error}</p>
-                <p className="text-red-700 text-sm mt-1">There was an error loading the registrations.</p>
-              </div>
-            </div>
-            <Button variant="outline" className="mt-4" onClick={handleRetry}>
-              Try Again
-            </Button>
-          </CardContent>
-        </Card>
-      ) : null}
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Registrations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{registrations.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">From all courses</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pendingRegistrations.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Awaiting review</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Confirmed</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{confirmedRegistrations.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Approved registrations</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{categoryGroups.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Course categories</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="mb-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <div className="flex items-center space-x-2">
-          <Search className="h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search by name, email, or course..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="h-9"
-          />
-        </div>
-        <div className="flex items-center space-x-2">
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="h-9">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="confirmed">Confirmed</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
+    <div className="p-4 md:p-6 h-full overflow-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl font-bold text-boffin-background">Course Registrations</h1>
+        
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name or email"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8 bg-white text-boffin-background"
+            />
+          </div>
+          
+          <div className="w-full sm:w-auto">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full bg-white text-boffin-background">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4" />
+                  <SelectValue placeholder="Filter by status" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading registrations...</p>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-boffin-primary"></div>
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 mr-2" />
+            <span>{error}</span>
           </div>
         </div>
-      ) : filteredRegistrations.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="text-muted-foreground">No registrations found matching your criteria.</p>
-          </CardContent>
-        </Card>
       ) : (
-        <Tabs defaultValue="all">
-          <TabsList className="mb-4">
-            <TabsTrigger value="all">All Registrations</TabsTrigger>
-            <TabsTrigger value="byCategory">By Category</TabsTrigger>
-          </TabsList>
-          <TabsContent value="all">
-            <div className="grid gap-4">
-              {filteredRegistrations.map((registration) => (
-                <RegistrationCard key={registration.id} registration={registration} />
-              ))}
-            </div>
-          </TabsContent>
-          <TabsContent value="byCategory">
-            <div className="space-y-6">
-              {categoryGroups.map((group) => {
-                const filteredCategoryRegistrations = group.registrations.filter((reg) => {
-                  const matchesSearch =
-                    searchTerm === "" ||
-                    reg.user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    reg.user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    reg.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    reg.course.title.toLowerCase().includes(searchTerm.toLowerCase());
+        <>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-boffin-background">Total Registrations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-boffin-background">{registrations.length}</div>
+                <p className="text-xs text-boffin-background/70 mt-1">From all courses</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-boffin-background">Pending Approval</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-boffin-background">{pendingRegistrations.length}</div>
+                <p className="text-xs text-boffin-background/70 mt-1">Awaiting review</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-boffin-background">Confirmed</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-boffin-background">{confirmedRegistrations.length}</div>
+                <p className="text-xs text-boffin-background/70 mt-1">Approved registrations</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-boffin-background">Categories</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-boffin-background">{categoryGroups.length}</div>
+                <p className="text-xs text-boffin-background/70 mt-1">Course categories</p>
+              </CardContent>
+            </Card>
+          </div>
 
-                  const matchesStatus = statusFilter === "all" || reg.status === statusFilter;
+          <Tabs defaultValue="all">
+            <TabsList className="mb-4">
+              <TabsTrigger value="all">All Registrations</TabsTrigger>
+              <TabsTrigger value="byCategory">By Category</TabsTrigger>
+            </TabsList>
+            <TabsContent value="all">
+              <div className="grid gap-4">
+                {filteredRegistrations.map((registration) => (
+                  <RegistrationCard key={registration.id} registration={registration} />
+                ))}
+              </div>
+            </TabsContent>
+            <TabsContent value="byCategory">
+              <div className="space-y-6">
+                {categoryGroups.map((group) => {
+                  const filteredCategoryRegistrations = group.registrations.filter((reg) => {
+                    const matchesSearch =
+                      searchTerm === "" ||
+                      reg.user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      reg.user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      reg.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      reg.course.title.toLowerCase().includes(searchTerm.toLowerCase());
 
-                  return matchesSearch && matchesStatus;
-                });
+                    const matchesStatus = statusFilter === "all" || reg.status === statusFilter;
 
-                if (filteredCategoryRegistrations.length === 0) return null;
+                    return matchesSearch && matchesStatus;
+                  });
 
-                return (
-                  <div key={group.id} className="space-y-4">
-                    <h3 className="font-semibold text-lg">{group.name}</h3>
-                    <div className="grid gap-4">
-                      {filteredCategoryRegistrations.map((registration) => (
-                        <RegistrationCard key={registration.id} registration={registration} />
-                      ))}
+                  if (filteredCategoryRegistrations.length === 0) return null;
+
+                  return (
+                    <div key={group.id} className="space-y-4">
+                      <h3 className="font-semibold text-lg">{group.name}</h3>
+                      <div className="grid gap-4">
+                        {filteredCategoryRegistrations.map((registration) => (
+                          <RegistrationCard key={registration.id} registration={registration} />
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          </TabsContent>
-        </Tabs>
+                  );
+                })}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </>
       )}
     </div>
   );

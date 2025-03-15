@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import CourseCard from '@/components/courses/CourseCard';
 import Link from 'next/link';
+import { Container } from '@/components/ui/container';
+import { Button } from '@/components/ui/button';
 
 interface Course {
   id: number;
@@ -75,15 +77,15 @@ export default function CategoryPage() {
   
   if (isLoading) {
     return (
-      <div className="container-custom py-16 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
+      <Container className="py-16 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-boffin-primary"></div>
+      </Container>
     );
   }
 
   if (error) {
     return (
-      <div className="container-custom py-16">
+      <Container className="py-16">
         <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -100,58 +102,57 @@ export default function CategoryPage() {
             </div>
           </div>
         </div>
-        <Link 
-          href="/courses"
-          className="text-primary hover:underline mb-4 inline-block"
-        >
-          ← Back to Courses
-        </Link>
-      </div>
+        <Button variant="boffin-outline" asChild>
+          <Link href="/courses">← Back to Courses</Link>
+        </Button>
+      </Container>
     );
   }
   
   if (!category) {
     return (
-      <div className="container-custom py-16 text-center">
+      <Container className="py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">Category not found</h1>
         <p className="mb-8">The category you're looking for doesn't exist or has been moved.</p>
-        <Link 
-          href="/courses"
-          className="inline-block bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors"
-        >
-          Back to Courses
-        </Link>
-      </div>
+        <Button variant="boffin" asChild>
+          <Link href="/courses">Back to Courses</Link>
+        </Button>
+      </Container>
     );
   }
   
   return (
     <div className="bg-gray-50 min-h-screen">
-      <div className="container-custom py-16">
-        <div className="mb-8">
-          <Link 
-            href="/courses"
-            className="text-primary hover:underline mb-4 inline-block"
-          >
-            ← Back to All Categories
-          </Link>
-          <h1 className="text-3xl font-bold text-gray-900 mt-2">{category.name}</h1>
-          <p className="text-xl text-gray-600 mt-2">{category.description}</p>
-        </div>
-        
-        {category.courses.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {category.courses.map((course) => (
-              <CourseCard key={course.id} course={course} />
-            ))}
+      <section className="bg-boffin-background text-white py-16">
+        <Container>
+          <div className="mb-4">
+            <Button variant="boffin-outline" asChild>
+              <Link href="/courses">← Back to All Categories</Link>
+            </Button>
+            <h1 className="text-3xl md:text-4xl font-bold mt-4">{category.name}</h1>
+            {category.description && (
+              <p className="text-xl mt-2 max-w-3xl">{category.description}</p>
+            )}
           </div>
-        ) : (
-          <div className="text-center py-12 bg-white rounded-lg shadow">
-            <h3 className="text-xl font-medium mb-2">No courses available</h3>
-            <p className="text-gray-600">New courses in this category are coming soon!</p>
-          </div>
-        )}
-      </div>
+        </Container>
+      </section>
+      
+      <section className="py-16">
+        <Container>
+          {category.courses.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {category.courses.map((course) => (
+                <CourseCard key={course.id} course={course} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-white rounded-lg shadow">
+              <h3 className="text-xl font-medium mb-2">No courses available</h3>
+              <p className="text-gray-600">New courses in this category are coming soon!</p>
+            </div>
+          )}
+        </Container>
+      </section>
     </div>
   );
 }

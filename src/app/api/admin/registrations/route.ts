@@ -61,11 +61,8 @@ export async function GET(request: NextRequest) {
 
     console.log(`Found ${registrations.length} registrations`);
     
-    // Return registrations in a structured format
-    return NextResponse.json({
-      registrations,
-      count: registrations.length,
-    });
+    // Return registrations as an array directly instead of nested in an object
+    return NextResponse.json(registrations);
   } catch (error) {
     console.error("Error fetching registrations:", error);
     return NextResponse.json(

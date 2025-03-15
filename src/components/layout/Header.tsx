@@ -8,8 +8,8 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="container-custom py-4">
+    <header className="bg-boffin-background text-white shadow-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
@@ -22,33 +22,33 @@ export default function Header() {
                 priority
               />
             </div>
-            <span className="text-xl font-bold text-gray-900">Boffin Institute</span>
+            <span className="text-xl font-bold text-white">Boffin Institute</span>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-600 hover:text-primary transition-colors">
+            <Link href="/" className="text-white hover:text-boffin-primary transition-colors">
               Home
             </Link>
-            <Link href="/courses" className="text-gray-600 hover:text-primary transition-colors">
+            <Link href="/courses" className="text-white hover:text-boffin-primary transition-colors">
               Courses
             </Link>
-            <Link href="/about" className="text-gray-600 hover:text-primary transition-colors">
+            <Link href="/about" className="text-white hover:text-boffin-primary transition-colors">
               About Us
             </Link>
-            <Link href="/contact" className="text-gray-600 hover:text-primary transition-colors">
+            <Link href="/contact" className="text-white hover:text-boffin-primary transition-colors">
               Contact
             </Link>
           </nav>
 
           {/* Action Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link href="/admin/login" className="text-gray-600 hover:text-primary transition-colors">
+            <Link href="/admin/login" className="text-white hover:text-boffin-primary transition-colors">
               Admin
             </Link>
             <Link 
               href="/register" 
-              className="bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors"
+              className="bg-boffin-primary text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-colors"
             >
               Register
             </Link>
@@ -58,7 +58,7 @@ export default function Header() {
           <div className="md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-500 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+              className="text-white hover:text-boffin-primary focus:outline-none focus:ring-2 focus:ring-boffin-primary"
             >
               <span className="sr-only">Open main menu</span>
               {isMenuOpen ? (
@@ -76,33 +76,33 @@ export default function Header() {
       </div>
 
       {/* Mobile Menu */}
-      <div className={`md:hidden ${isMenuOpen ? 'block' : 'hidden'}`}>
+      <div className={`md:hidden bg-boffin-background border-t border-boffin-primary/20 ${isMenuOpen ? 'block' : 'hidden'}`}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           <div className="flex flex-col space-y-2">
               <Link 
                 href="/" 
-                className="text-gray-600 hover:text-primary transition-colors block px-3 py-2"
+                className="text-white hover:text-boffin-primary transition-colors block px-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Home
               </Link>
               <Link 
                 href="/courses" 
-                className="text-gray-600 hover:text-primary transition-colors block px-3 py-2"
+                className="text-white hover:text-boffin-primary transition-colors block px-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Courses
               </Link>
               <Link 
                 href="/about" 
-                className="text-gray-600 hover:text-primary transition-colors block px-3 py-2"
+                className="text-white hover:text-boffin-primary transition-colors block px-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About Us
               </Link>
               <Link 
                 href="/contact" 
-                className="text-gray-600 hover:text-primary transition-colors block px-3 py-2"
+                className="text-white hover:text-boffin-primary transition-colors block px-3 py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact
@@ -110,14 +110,14 @@ export default function Header() {
               <div className="flex space-x-4 pt-2 px-3">
                 <Link 
                   href="/admin/login" 
-                  className="text-gray-600 hover:text-primary transition-colors"
+                  className="text-white hover:text-boffin-primary transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Admin
                 </Link>
                 <Link 
                   href="/register" 
-                  className="bg-primary text-white px-3 py-1 rounded hover:bg-primary/90 transition-colors"
+                  className="bg-boffin-primary text-white px-3 py-1 rounded-md hover:bg-opacity-90 transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Register

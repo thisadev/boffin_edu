@@ -3,7 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import PlaceholderImage from '@/components/ui/PlaceholderImage';
+import { Container } from '@/components/ui/container';
+import { Button } from '@/components/ui/button';
 
 interface Instructor {
   id: number;
@@ -104,15 +107,15 @@ export default function CourseDetailPage() {
   
   if (isLoading) {
     return (
-      <div className="container-custom py-16 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
+      <Container className="py-16 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-boffin-primary"></div>
+      </Container>
     );
   }
 
   if (error) {
     return (
-      <div className="container-custom py-16">
+      <Container className="py-16">
         <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
           <div className="flex">
             <div className="flex-shrink-0">
@@ -129,41 +132,32 @@ export default function CourseDetailPage() {
             </div>
           </div>
         </div>
-        <Link 
-          href="/courses"
-          className="text-primary hover:underline mb-4 inline-block"
-        >
-          u2190 Back to Courses
-        </Link>
-      </div>
+        <Button variant="boffin-outline" asChild>
+          <Link href="/courses">← Back to Courses</Link>
+        </Button>
+      </Container>
     );
   }
   
   if (!course) {
     return (
-      <div className="container-custom py-16 text-center">
+      <Container className="py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">Course not found</h1>
         <p className="mb-8">The course you're looking for doesn't exist or has been moved.</p>
-        <Link 
-          href="/courses"
-          className="inline-block bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors"
-        >
-          Back to Courses
-        </Link>
-      </div>
+        <Button variant="boffin" asChild>
+          <Link href="/courses">Back to Courses</Link>
+        </Button>
+      </Container>
     );
   }
   
   return (
     <div className="bg-gray-50 min-h-screen">
-      <div className="container-custom py-16">
+      <Container className="py-16">
         <div className="mb-8">
-          <Link 
-            href="/courses"
-            className="text-primary hover:underline mb-4 inline-block"
-          >
-            u2190 Back to Courses
-          </Link>
+          <Button variant="boffin-outline" asChild>
+            <Link href="/courses">← Back to Courses</Link>
+          </Button>
         </div>
         
         {/* Course Header */}
@@ -183,8 +177,8 @@ export default function CourseDetailPage() {
             </div>
             <div className="md:w-1/2 p-8">
               <div className="flex justify-between items-start mb-4">
-                <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
-                <span className="inline-block bg-primary/10 text-primary px-3 py-1 text-sm font-semibold rounded">
+                <h1 className="text-3xl font-bold text-boffin-background">{course.title}</h1>
+                <span className="inline-block bg-boffin-primary/10 text-boffin-primary px-3 py-1 text-sm font-semibold rounded">
                   {course.category.name}
                 </span>
               </div>
@@ -192,12 +186,12 @@ export default function CourseDetailPage() {
               
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Duration</h3>
-                  <p className="text-lg font-medium">{formatDuration()}</p>
+                  <h3 className="text-sm font-medium text-boffin-background">Duration</h3>
+                  <p className="text-lg font-medium text-boffin-background">{formatDuration()}</p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500">Level</h3>
-                  <p className="text-lg font-medium">{course.level || 'All Levels'}</p>
+                  <h3 className="text-sm font-medium text-boffin-background">Level</h3>
+                  <p className="text-lg font-medium text-boffin-background">{course.level || 'All Levels'}</p>
                 </div>
               </div>
               
@@ -205,11 +199,11 @@ export default function CourseDetailPage() {
                 <div className="flex items-end mb-2">
                   {course.salePrice ? (
                     <>
-                      <span className="text-3xl font-bold text-gray-900">${course.salePrice}</span>
+                      <span className="text-3xl font-bold text-boffin-background">${course.salePrice}</span>
                       <span className="text-xl text-gray-500 line-through ml-3">${course.regularPrice}</span>
                     </>
                   ) : (
-                    <span className="text-3xl font-bold text-gray-900">${course.regularPrice}</span>
+                    <span className="text-3xl font-bold text-boffin-background">${course.regularPrice}</span>
                   )}
                 </div>
                 {course.salePrice && (
@@ -220,21 +214,21 @@ export default function CourseDetailPage() {
               </div>
               
               <div className="flex space-x-4">
-                <Link 
-                  href={`/register?category=${course.category.slug}&courseId=${course.id}`}
-                  className="flex-1 bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors text-center"
-                >
-                  Enroll Now
-                </Link>
+                <Button variant="boffin" size="lg" className="flex-1" asChild>
+                  <Link href={`/register?category=${course.category.slug}&courseId=${course.id}`}>
+                    Enroll Now
+                  </Link>
+                </Button>
                 {course.curriculumPdfUrl && (
-                  <a 
-                    href={course.curriculumPdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors"
-                  >
-                    Download Syllabus
-                  </a>
+                  <Button variant="boffin-secondary" size="lg" asChild>
+                    <a 
+                      href={course.curriculumPdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Download Syllabus
+                    </a>
+                  </Button>
                 )}
               </div>
             </div>
@@ -242,128 +236,177 @@ export default function CourseDetailPage() {
         </div>
         
         {/* Course Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
-            {/* What You'll Learn */}
-            {course.learningOutcomes && course.learningOutcomes.length > 0 && (
-              <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">What You'll Learn</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {course.learningOutcomes.map((outcome, index) => (
-                    <div key={index} className="flex items-start">
-                      <svg className="h-5 w-5 text-green-500 mr-2 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>{outcome}</span>
+        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
+          <h2 className="text-2xl font-bold mb-6 text-boffin-background">Course Content</h2>
+          
+          {course.modules.length > 0 ? (
+            <div className="space-y-6">
+              {course.modules
+                .sort((a, b) => a.orderIndex - b.orderIndex)
+                .map((module) => (
+                  <div key={module.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                    <div className="bg-gray-50 px-6 py-4">
+                      <h3 className="text-lg font-semibold text-boffin-background">{module.title}</h3>
+                      {module.description && <p className="mt-1 text-boffin-background/80">{module.description}</p>}
                     </div>
-                  ))}
-                </div>
-              </div>
-            )}
-            
-            {/* Course Syllabus */}
-            {course.modules && course.modules.length > 0 && (
-              <div className="bg-white rounded-lg shadow-md p-8 mb-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Course Syllabus</h2>
-                <div className="space-y-6">
-                  {course.modules.map((module, index) => (
-                    <div key={module.id} className="border-b border-gray-200 pb-6 last:border-0 last:pb-0">
-                      <h3 className="text-xl font-bold mb-4">Module {index + 1}: {module.title}</h3>
-                      {module.description && <p className="text-gray-700 mb-4">{module.description}</p>}
-                      <ul className="space-y-2">
-                        {module.topics.map((topic, topicIndex) => (
-                          <li key={topic.id} className="flex items-start">
-                            <span className="inline-block h-6 w-6 rounded-full bg-primary/10 text-primary text-sm flex items-center justify-center mr-3 mt-0.5">
-                              {topicIndex + 1}
-                            </span>
-                            {topic.title}
-                          </li>
+                    
+                    <div className="divide-y divide-gray-200">
+                      {module.topics
+                        .sort((a, b) => a.orderIndex - b.orderIndex)
+                        .map((topic) => (
+                          <div key={topic.id} className="px-6 py-4">
+                            <h4 className="font-medium text-boffin-background">{topic.title}</h4>
+                            {topic.description && <p className="mt-1 text-sm text-boffin-background/80">{topic.description}</p>}
+                          </div>
                         ))}
-                      </ul>
                     </div>
-                  ))}
+                  </div>
+                ))}
+            </div>
+          ) : (
+            <p className="text-boffin-background/80">Detailed course content will be available soon.</p>
+          )}
+        </div>
+        
+        {/* Course Details */}
+        <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div className="md:col-span-2">
+            <div className="bg-white rounded-lg shadow-md p-8 h-full">
+              <h2 className="text-2xl font-bold mb-6 text-boffin-background">About This Course</h2>
+              
+              {course.longDescription ? (
+                <div className="prose max-w-none text-boffin-background/80">
+                  <p>{course.longDescription}</p>
                 </div>
-              </div>
-            )}
-            
-            {/* Instructors */}
-            {course.instructors && course.instructors.length > 0 && (
-              <div className="bg-white rounded-lg shadow-md p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Instructor{course.instructors.length > 1 ? 's' : ''}</h2>
-                <div className="space-y-8">
-                  {course.instructors.map((instructorItem) => (
-                    <div key={instructorItem.instructor.id} className="flex flex-col md:flex-row items-center md:items-start">
-                      <div className="relative h-24 w-24 rounded-full overflow-hidden mb-4 md:mb-0 md:mr-6">
-                        <PlaceholderImage 
-                          src={instructorItem.instructor.profileImageUrl || ''} 
-                          fallbackSrc="/images/instructor-placeholder.jpg"
-                          alt={instructorItem.instructor.name}
-                          fill
-                          className="object-cover"
-                          priority
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{instructorItem.instructor.name}</h3>
-                        <p className="text-gray-700">{instructorItem.instructor.bio}</p>
-                      </div>
-                    </div>
-                  ))}
+              ) : (
+                <p className="text-boffin-background/80">{course.shortDescription}</p>
+              )}
+              
+              {course.learningOutcomes && course.learningOutcomes.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-xl font-bold mb-4 text-boffin-background">What You'll Learn</h3>
+                  <ul className="space-y-2">
+                    {course.learningOutcomes.map((outcome, index) => (
+                      <li key={index} className="flex items-start">
+                        <svg className="h-5 w-5 text-boffin-primary flex-shrink-0 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-boffin-background/80">{outcome}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
           
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            {/* Course Details Card */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8 sticky top-8">
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Course Details</h3>
-              <ul className="space-y-4">
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Duration:</span>
-                  <span className="font-medium">{formatDuration()}</span>
-                </li>
-                {course.level && (
-                  <li className="flex justify-between">
-                    <span className="text-gray-600">Level:</span>
-                    <span className="font-medium">{course.level}</span>
-                  </li>
-                )}
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Category:</span>
-                  <span className="font-medium">{course.category.name}</span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Modules:</span>
-                  <span className="font-medium">{course.modules.length}</span>
-                </li>
-                <li className="flex justify-between">
-                  <span className="text-gray-600">Total Topics:</span>
-                  <span className="font-medium">
-                    {course.modules.reduce((total, module) => total + module.topics.length, 0)}
-                  </span>
-                </li>
-                {course.deliveryMode && (
-                  <li className="flex justify-between">
-                    <span className="text-gray-600">Delivery Mode:</span>
-                    <span className="font-medium">{course.deliveryMode}</span>
-                  </li>
-                )}
-              </ul>
+          <div>
+            <div className="bg-white rounded-lg shadow-md p-8">
+              <h2 className="text-2xl font-bold mb-6 text-boffin-background">Course Details</h2>
               
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <Link 
-                  href={`/register?category=${course.category.slug}&courseId=${course.id}`}
-                  className="block w-full bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors text-center"
-                >
-                  Enroll Now
-                </Link>
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-boffin-background/70">Duration</h3>
+                  <p className="text-boffin-background">{formatDuration()}</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium text-boffin-background/70">Level</h3>
+                  <p className="text-boffin-background">{course.level || 'All Levels'}</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium text-boffin-background/70">Delivery Mode</h3>
+                  <p className="text-boffin-background">{course.deliveryMode || 'Online'}</p>
+                </div>
+                
+                <div>
+                  <h3 className="text-sm font-medium text-boffin-background/70">Category</h3>
+                  <p className="text-boffin-background">
+                    <Link href={`/courses/category/${course.category.slug}`} className="text-boffin-primary hover:underline">
+                      {course.category.name}
+                    </Link>
+                  </p>
+                </div>
+                
+                {course.curriculumPdfUrl && (
+                  <div className="pt-4">
+                    <a 
+                      href={course.curriculumPdfUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-boffin-primary hover:underline"
+                    >
+                      <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      Download Full Curriculum
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
-      </div>
+
+        {/* Instructors */}
+        {course.instructors && course.instructors.length > 0 && (
+          <div className="bg-white rounded-lg shadow-md p-8 mb-8">
+            <h2 className="text-2xl font-bold mb-6 text-boffin-background">Course Instructors</h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {course.instructors.map(({ instructor }) => (
+                <div key={instructor.id} className="flex items-start space-x-4">
+                  <div className="flex-shrink-0">
+                    <div className="h-16 w-16 rounded-full overflow-hidden bg-gray-200">
+                      {instructor.profileImageUrl ? (
+                        <Image 
+                          src={instructor.profileImageUrl} 
+                          alt={instructor.name} 
+                          width={64} 
+                          height={64}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center bg-boffin-primary/10 text-boffin-primary">
+                          <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-medium text-boffin-background">{instructor.name}</h3>
+                    {instructor.bio && <p className="mt-1 text-boffin-background/80">{instructor.bio}</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {/* Enrollment CTA */}
+        <div className="bg-boffin-background text-white rounded-lg shadow-md p-8 text-center">
+          <h2 className="text-2xl font-bold mb-4">Ready to Enroll?</h2>
+          <p className="text-lg mb-6">Start your journey to mastering {course.title} today!</p>
+          
+          <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <Button variant="boffin" size="lg" asChild>
+              <Link href={`/register?category=${course.category.slug}&course=${course.slug}`}>
+                Enroll Now
+              </Link>
+            </Button>
+            
+            <Button variant="boffin-outline" size="lg" asChild>
+              <Link href="/contact">
+                Contact Us
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </Container>
     </div>
   );
 }

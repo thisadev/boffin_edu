@@ -87,7 +87,7 @@ export default function AdminDashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Mobile sidebar toggle */}
       <div className="lg:hidden fixed top-0 left-0 z-20 p-4">
         <button
@@ -105,66 +105,64 @@ export default function AdminDashboardLayout({
       </div>
 
       {/* Sidebar */}
-      <div
-        className={`fixed inset-y-0 left-0 z-10 w-64 bg-blue-700 transition duration-300 transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static lg:inset-0`}
+      <aside
+        className={`fixed inset-y-0 left-0 z-10 w-64 bg-boffin-background transition duration-300 transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:relative lg:flex-shrink-0`}
       >
-        <div className="flex items-center justify-center h-16 bg-blue-800 text-white font-bold text-xl">
-          Boffin Admin
-        </div>
-        <div className="mt-5 flex flex-col flex-grow">
-          <nav className="flex-1 px-2 space-y-1">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive ? "bg-blue-800 text-white" : "text-blue-100 hover:bg-blue-600"}`}
-                >
-                  <svg
-                    className={`mr-3 h-6 w-6 ${isActive ? "text-blue-300" : "text-blue-300"}`}
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    aria-hidden="true"
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-center h-16 bg-boffin-background border-b border-boffin-background/30 text-boffin-primary font-bold text-xl">
+            Boffin Admin
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <nav className="px-2 py-4 space-y-1">
+              {navigation.map((item) => {
+                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive ? "bg-boffin-background/80 text-boffin-primary" : "text-white hover:bg-boffin-background/50 hover:text-boffin-primary/80"}`}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                  </svg>
-                  {item.name}
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-        <div className="p-4 border-t border-blue-800">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <svg className="h-10 w-10 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-white">{session?.user?.name || "Admin"}</p>
-              <button
-                onClick={handleSignOut}
-                className="text-xs font-medium text-blue-200 hover:text-white"
-              >
-                Sign out
-              </button>
+                    <svg
+                      className={`mr-3 h-6 w-6 ${isActive ? "text-boffin-primary" : "text-boffin-cyan"}`}
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                    </svg>
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+          <div className="p-4 border-t border-boffin-background/30">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <svg className="h-10 w-10 text-boffin-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm font-medium text-white">{session?.user?.name || "Admin"}</p>
+                <button
+                  onClick={handleSignOut}
+                  className="text-xs font-medium text-boffin-cyan hover:text-boffin-primary"
+                >
+                  Sign out
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </aside>
 
       {/* Main content */}
-      <div className={`flex-1 flex flex-col ${isSidebarOpen ? "lg:pl-64" : ""}`}>
-        <main className="flex-1">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">{children}</div>
-          </div>
-        </main>
-      </div>
+      <main className="flex-1 overflow-y-auto p-6">
+        {children}
+      </main>
     </div>
   );
 }

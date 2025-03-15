@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import PlaceholderImage from '@/components/ui/PlaceholderImage';
+import { Button } from '@/components/ui/button';
 
 interface CourseProps {
   id: number;
@@ -55,8 +56,8 @@ export default function CourseCard({ course }: CourseCardProps) {
       </div>
       <div className="p-6">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-bold text-gray-900 mb-2">{course.title}</h3>
-          <span className="inline-block bg-primary/10 text-primary px-2 py-1 text-xs font-semibold rounded">
+          <h3 className="text-xl font-bold text-boffin-background mb-2">{course.title}</h3>
+          <span className="inline-block bg-boffin-primary/10 text-boffin-primary px-2 py-1 text-xs font-semibold rounded">
             {course.categoryName}
           </span>
         </div>
@@ -69,19 +70,18 @@ export default function CourseCard({ course }: CourseCardProps) {
           <div className="flex items-end">
             {course.salePrice ? (
               <>
-                <span className="text-2xl font-bold text-gray-900">${course.salePrice}</span>
+                <span className="text-2xl font-bold text-boffin-background">${course.salePrice}</span>
                 <span className="text-sm text-gray-500 line-through ml-2">${course.regularPrice}</span>
               </>
             ) : (
-              <span className="text-2xl font-bold text-gray-900">${course.regularPrice}</span>
+              <span className="text-2xl font-bold text-boffin-background">${course.regularPrice}</span>
             )}
           </div>
-          <Link 
-            href={`/courses/${course.slug}`}
-            className="inline-block bg-primary text-white px-4 py-2 rounded hover:bg-primary/90 transition-colors"
-          >
-            View Details
-          </Link>
+          <Button variant="boffin" size="sm" asChild>
+            <Link href={`/courses/${course.slug}`}>
+              View Details
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

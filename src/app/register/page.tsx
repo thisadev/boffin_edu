@@ -6,6 +6,8 @@ import { useSearchParams } from 'next/navigation';
 import { courses, courseCategories } from '@/data/courses';
 import Image from 'next/image';
 import SuccessMessage from '@/components/ui/SuccessMessage';
+import { Container } from '@/components/ui/container';
+import { Button } from '@/components/ui/button';
 
 interface FormData {
   firstName: string;
@@ -203,7 +205,8 @@ export default function RegisterPage() {
     }, 1000);
   };
 
-  const selectedCourse = courses.find(course => course.id === formData.courseId);
+  // Find selected course, defaulting to null if not found
+  const selectedCourse = courses.find(course => course.id === formData.courseId) || null;
 
   // Add dynamic fields based on course category
   const renderCategorySpecificFields = () => {
@@ -213,38 +216,52 @@ export default function RegisterPage() {
       case 'DASACA':
         return (
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">DASACAu2122 Certification Requirements</h3>
+            <h3 className="text-lg font-semibold text-boffin-background mb-4">DASACAu2122 Certification Requirements</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="certificationLevel" className="block text-gray-700 font-medium mb-2">Desired Certification Level</label>
-                <select
-                  id="certificationLevel"
-                  name="certificationLevel"
-                  value={formData.certificationLevel || ''}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="">Select certification level</option>
-                  <option value="Foundation">Foundation</option>
-                  <option value="Practitioner">Practitioner</option>
-                  <option value="Expert">Expert</option>
-                </select>
+                <label htmlFor="certificationLevel" className="block text-boffin-background font-medium mb-2">Desired Certification Level</label>
+                <div className="relative">
+                  <select
+                    id="certificationLevel"
+                    name="certificationLevel"
+                    value={formData.certificationLevel || ''}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                  >
+                    <option value="" className="text-boffin-background">Select certification level</option>
+                    <option value="Foundation" className="text-boffin-background">Foundation</option>
+                    <option value="Practitioner" className="text-boffin-background">Practitioner</option>
+                    <option value="Expert" className="text-boffin-background">Expert</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-boffin-background">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
               <div>
-                <label htmlFor="priorExperience" className="block text-gray-700 font-medium mb-2">Prior Data Analytics Experience</label>
-                <select
-                  id="priorExperience"
-                  name="priorExperience"
-                  value={formData.priorExperience || ''}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="">Select experience level</option>
-                  <option value="None">None</option>
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
+                <label htmlFor="priorExperience" className="block text-boffin-background font-medium mb-2">Prior Data Analytics Experience</label>
+                <div className="relative">
+                  <select
+                    id="priorExperience"
+                    name="priorExperience"
+                    value={formData.priorExperience || ''}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                  >
+                    <option value="" className="text-boffin-background">Select experience level</option>
+                    <option value="None" className="text-boffin-background">None</option>
+                    <option value="Beginner" className="text-boffin-background">Beginner</option>
+                    <option value="Intermediate" className="text-boffin-background">Intermediate</option>
+                    <option value="Advanced" className="text-boffin-background">Advanced</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-boffin-background">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -252,10 +269,10 @@ export default function RegisterPage() {
       case 'BootCamp':
         return (
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Boot Camp Requirements</h3>
+            <h3 className="text-lg font-semibold text-boffin-background mb-4">Boot Camp Requirements</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
               <div>
-                <label htmlFor="programmingLanguages" className="block text-gray-700 font-medium mb-2">Programming Languages Known</label>
+                <label htmlFor="programmingLanguages" className="block text-boffin-background font-medium mb-2">Programming Languages Known</label>
                 <input
                   type="text"
                   id="programmingLanguages"
@@ -263,28 +280,35 @@ export default function RegisterPage() {
                   value={formData.programmingLanguages || ''}
                   onChange={handleChange}
                   placeholder="e.g., Python, R, SQL"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-boffin-primary rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
                 />
               </div>
               <div>
-                <label htmlFor="preferredSchedule" className="block text-gray-700 font-medium mb-2">Preferred Schedule</label>
-                <select
-                  id="preferredSchedule"
-                  name="preferredSchedule"
-                  value={formData.preferredSchedule || ''}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="">Select schedule preference</option>
-                  <option value="Weekdays">Weekdays</option>
-                  <option value="Weekends">Weekends</option>
-                  <option value="Evenings">Evenings</option>
-                  <option value="Flexible">Flexible</option>
-                </select>
+                <label htmlFor="preferredSchedule" className="block text-boffin-background font-medium mb-2">Preferred Schedule</label>
+                <div className="relative">
+                  <select
+                    id="preferredSchedule"
+                    name="preferredSchedule"
+                    value={formData.preferredSchedule || ''}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-boffin-primary rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                  >
+                    <option value="" className="text-boffin-background">Select schedule preference</option>
+                    <option value="Weekdays" className="text-boffin-background">Weekdays</option>
+                    <option value="Weekends" className="text-boffin-background">Weekends</option>
+                    <option value="Evenings" className="text-boffin-background">Evenings</option>
+                    <option value="Flexible" className="text-boffin-background">Flexible</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-boffin-background">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
             <div>
-              <label htmlFor="projectIdeas" className="block text-gray-700 font-medium mb-2">Project Ideas or Interests</label>
+              <label htmlFor="projectIdeas" className="block text-boffin-background font-medium mb-2">Project Ideas or Interests</label>
               <textarea
                 id="projectIdeas"
                 name="projectIdeas"
@@ -292,7 +316,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 rows={3}
                 placeholder="Share any specific projects or areas you're interested in working on during the boot camp"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-boffin-primary rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
               ></textarea>
             </div>
           </div>
@@ -300,34 +324,34 @@ export default function RegisterPage() {
       case 'Corporate':
         return (
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">Corporate Training Information</h3>
+            <h3 className="text-lg font-semibold text-boffin-background mb-4">Corporate Training Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
               <div>
-                <label htmlFor="companyName" className="block text-gray-700 font-medium mb-2">Company Name</label>
+                <label htmlFor="companyName" className="block text-boffin-background font-medium mb-2">Company Name</label>
                 <input
                   type="text"
                   id="companyName"
                   name="companyName"
                   value={formData.companyName || ''}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
                 />
               </div>
               <div>
-                <label htmlFor="jobTitle" className="block text-gray-700 font-medium mb-2">Job Title</label>
+                <label htmlFor="jobTitle" className="block text-boffin-background font-medium mb-2">Job Title</label>
                 <input
                   type="text"
                   id="jobTitle"
                   name="jobTitle"
                   value={formData.jobTitle || ''}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
                 />
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label htmlFor="teamSize" className="block text-gray-700 font-medium mb-2">Number of Team Members to Train</label>
+                <label htmlFor="teamSize" className="block text-boffin-background font-medium mb-2">Number of Team Members to Train</label>
                 <input
                   type="number"
                   id="teamSize"
@@ -335,24 +359,30 @@ export default function RegisterPage() {
                   min="1"
                   value={formData.teamSize || ''}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
                 />
               </div>
               <div>
-                <label htmlFor="preferredLocation" className="block text-gray-700 font-medium mb-2">Preferred Training Location</label>
-                <select
-                  id="preferredLocation"
-                  name="preferredLocation"
-                  value={formData.preferredLocation || ''}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value="">Select location preference</option>
-                  <option value="On-site">On-site at our company</option>
-                  <option value="Boffin Institute">At Boffin Institute</option>
-                  <option value="Virtual">Virtual/Remote</option>
-                  <option value="Hybrid">Hybrid</option>
-                </select>
+                <label htmlFor="preferredLocation" className="block text-boffin-background font-medium mb-2">Preferred Training Location</label>
+                <div className="relative">
+                  <select
+                    id="preferredLocation"
+                    name="preferredLocation"
+                    value={formData.preferredLocation || ''}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-boffin-primary rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                  >
+                    <option value="" className="text-boffin-background">Select location preference</option>
+                    <option value="On-site" className="text-boffin-background">On-site at our company</option>
+                    <option value="Boffin" className="text-boffin-background">At Boffin Institute</option>
+                    <option value="Virtual" className="text-boffin-background">Virtual/Online</option>
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-boffin-background">
+                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                    </svg>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -390,7 +420,7 @@ export default function RegisterPage() {
                       value: e.target.checked ? 'yes' : 'no'
                     }
                   } as any)}
-                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  className="h-4 w-4 text-boffin-primary focus:ring-boffin-primary border-gray-300 rounded"
                 />
                 <span className="text-gray-700">I would like to receive pre-exam study materials</span>
               </label>
@@ -408,7 +438,7 @@ export default function RegisterPage() {
                       value: e.target.checked ? 'yes' : 'no'
                     }
                   } as any)}
-                  className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+                  className="h-4 w-4 text-boffin-primary focus:ring-boffin-primary border-gray-300 rounded"
                 />
                 <span className="text-gray-700">Include certification exam voucher with registration</span>
               </label>
@@ -431,7 +461,7 @@ export default function RegisterPage() {
                     value="yes"
                     checked={formData.hasLaptop === 'yes'}
                     onChange={handleChange}
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300"
+                    className="h-4 w-4 text-boffin-primary focus:ring-boffin-primary border-gray-300"
                   />
                   <span>Yes</span>
                 </label>
@@ -442,7 +472,7 @@ export default function RegisterPage() {
                     value="no"
                     checked={formData.hasLaptop === 'no'}
                     onChange={handleChange}
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300"
+                    className="h-4 w-4 text-boffin-primary focus:ring-boffin-primary border-gray-300"
                   />
                   <span>No, I need to rent one</span>
                 </label>
@@ -458,7 +488,7 @@ export default function RegisterPage() {
                     value="yes"
                     checked={formData.needsSoftwareHelp === 'yes'}
                     onChange={handleChange}
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300"
+                    className="h-4 w-4 text-boffin-primary focus:ring-boffin-primary border-gray-300"
                   />
                   <span>Yes, I need assistance</span>
                 </label>
@@ -469,7 +499,7 @@ export default function RegisterPage() {
                     value="no"
                     checked={formData.needsSoftwareHelp === 'no'}
                     onChange={handleChange}
-                    className="h-4 w-4 text-primary focus:ring-primary border-gray-300"
+                    className="h-4 w-4 text-boffin-primary focus:ring-boffin-primary border-gray-300"
                   />
                   <span>No, I can manage</span>
                 </label>
@@ -490,7 +520,7 @@ export default function RegisterPage() {
                 name="departmentFocus"
                 value={formData.departmentFocus || ''}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
               >
                 <option value="">Select department</option>
                 <option value="Executive">Executive Leadership</option>
@@ -512,7 +542,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 rows={3}
                 placeholder="What specific outcomes are you hoping to achieve with this training?"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
               ></textarea>
             </div>
           </div>
@@ -534,307 +564,358 @@ export default function RegisterPage() {
       )}
       
       {/* Hero Section */}
-      <section className="bg-primary text-white py-20">
-        <div className="container-custom">
+      <section className="bg-boffin-background text-white py-16">
+        <Container>
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Course Registration</h1>
             <p className="text-xl mb-8">
               {selectedCourse 
-                ? `Register for ${selectedCourse.title}`
+                ? `Register for ${selectedCourse?.title}`
                 : 'Complete the form below to register for your selected course'}
             </p>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Registration Form */}
       <section className="py-16">
-        <div className="container-custom">
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white p-8 rounded-lg shadow-md">
-              {formStatus.submitted && !showSuccessModal && (
-                <div className={`mb-6 p-4 rounded-md ${formStatus.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                  {formStatus.message}
-                </div>
-              )}
-              
-              <form onSubmit={handleSubmit}>
-                {/* Course Selection */}
-                <div className="mb-8 pb-8 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Course Selection</h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <label htmlFor="category" className="block text-gray-700 font-medium mb-2">Course Category *</label>
+        <Container>
+          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-8">
+            {formStatus.submitted && !formStatus.success && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-red-600">{formStatus.message}</p>
+              </div>
+            )}
+            
+            <form onSubmit={handleSubmit}>
+              {/* Course Selection */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-boffin-background mb-6">Course Selection</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="category" className="block text-boffin-background font-medium mb-2">Course Category*</label>
+                    <div className="relative">
                       <select
                         id="category"
                         name="category"
                         value={formData.category}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                        required
                       >
-                        <option value="">Select a category</option>
-                        <option value="DASACA">DASACAu2122 Certification</option>
-                        <option value="BootCamp">Boot Camps</option>
-                        <option value="Corporate">Corporate Training</option>
+                        <option value="" className="text-boffin-background">Select a category</option>
+                        <option value="DASACA" className="text-boffin-background">DASACAu2122 Certification</option>
+                        <option value="BootCamp" className="text-boffin-background">Data Analytics Boot Camp</option>
+                        <option value="Corporate" className="text-boffin-background">Corporate Training</option>
                       </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-boffin-background">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                      </div>
                     </div>
-                    
-                    <div>
-                      <label htmlFor="courseId" className="block text-gray-700 font-medium mb-2">Course *</label>
+                  </div>
+                  <div>
+                    <label htmlFor="courseId" className="block text-boffin-background font-medium mb-2">Course*</label>
+                    <div className="relative">
                       <select
                         id="courseId"
                         name="courseId"
                         value={formData.courseId}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                        required
+                        disabled={!formData.category}
                       >
-                        <option value="">Select a course</option>
-                        {filteredCourses.map(course => (
-                          <option key={course.id} value={course.id}>
-                            {course.title}
-                          </option>
-                        ))}
+                        <option value="" className="text-boffin-background">Select a course</option>
+                        {filteredCourses
+                          .filter(course => !formData.category || course.category === formData.category)
+                          .map(course => (
+                            <option key={course.id} value={course.id} className="text-boffin-background">{course.title}</option>
+                          ))
+                        }
                       </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-boffin-background">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
                 </div>
-                
-                {/* Personal Information */}
-                <div className="mb-8 pb-8 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Personal Information</h2>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <label htmlFor="firstName" className="block text-gray-700 font-medium mb-2">First Name *</label>
-                      <input
-                        type="text"
-                        id="firstName"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="lastName" className="block text-gray-700 font-medium mb-2">Last Name *</label>
-                      <input
-                        type="text"
-                        id="lastName"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <label htmlFor="email" className="block text-gray-700 font-medium mb-2">Email *</label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        required
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">Phone</label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Address Information */}
-                <div className="mb-8 pb-8 border-b border-gray-200">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Address Information</h2>
-                  
-                  <div className="mb-6">
-                    <label htmlFor="address" className="block text-gray-700 font-medium mb-2">Address</label>
+              </div>
+
+              {/* Personal Information */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-boffin-background mb-6">Personal Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="firstName" className="block text-boffin-background font-medium mb-2">First Name*</label>
                     <input
                       type="text"
-                      id="address"
-                      name="address"
-                      value={formData.address}
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                      required
                     />
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div>
-                      <label htmlFor="city" className="block text-gray-700 font-medium mb-2">City</label>
-                      <input
-                        type="text"
-                        id="city"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="state" className="block text-gray-700 font-medium mb-2">State/Province</label>
-                      <input
-                        type="text"
-                        id="state"
-                        name="state"
-                        value={formData.state}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="zipCode" className="block text-gray-700 font-medium mb-2">ZIP/Postal Code</label>
-                      <input
-                        type="text"
-                        id="zipCode"
-                        name="zipCode"
-                        value={formData.zipCode}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-                  
                   <div>
-                    <label htmlFor="country" className="block text-gray-700 font-medium mb-2">Country</label>
-                    <select
-                      id="country"
-                      name="country"
-                      value={formData.country}
+                    <label htmlFor="lastName" className="block text-boffin-background font-medium mb-2">Last Name*</label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    >
-                      <option value="">Select a country</option>
-                      <option value="US">United States</option>
-                      <option value="CA">Canada</option>
-                      <option value="UK">United Kingdom</option>
-                      <option value="AU">Australia</option>
-                      <option value="IN">India</option>
-                      <option value="SG">Singapore</option>
-                      <option value="Other">Other</option>
-                    </select>
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="email" className="block text-boffin-background font-medium mb-2">Email*</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="phone" className="block text-boffin-background font-medium mb-2">Phone Number*</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                      required
+                    />
                   </div>
                 </div>
-                
-                {/* Additional Information */}
-                <div className="mb-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Additional Information</h2>
-                  
-                  {/* Dynamic fields based on course category */}
-                  {renderCategorySpecificFields()}
-                  
-                  {/* Dynamic fields based on specific course */}
-                  {renderCourseSpecificFields()}
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    <div>
-                      <label htmlFor="educationLevel" className="block text-gray-700 font-medium mb-2">Education Level</label>
+              </div>
+              
+              {/* Address Information */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-boffin-background mb-6">Address Information</h2>
+                <div className="mb-6">
+                  <label htmlFor="address" className="block text-boffin-background font-medium mb-2">Street Address</label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  <div>
+                    <label htmlFor="city" className="block text-boffin-background font-medium mb-2">City</label>
+                    <input
+                      type="text"
+                      id="city"
+                      name="city"
+                      value={formData.city}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="state" className="block text-boffin-background font-medium mb-2">State/Province</label>
+                    <input
+                      type="text"
+                      id="state"
+                      name="state"
+                      value={formData.state}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="zipCode" className="block text-boffin-background font-medium mb-2">Postal/Zip Code</label>
+                    <input
+                      type="text"
+                      id="zipCode"
+                      name="zipCode"
+                      value={formData.zipCode}
+                      onChange={handleChange}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="country" className="block text-boffin-background font-medium mb-2">Country</label>
+                    <div className="relative">
+                      <select
+                        id="country"
+                        name="country"
+                        value={formData.country}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                      >
+                        <option value="" className="text-boffin-background">Select a country</option>
+                        <option value="Sri Lanka" className="text-boffin-background">Sri Lanka</option>
+                        <option value="India" className="text-boffin-background">India</option>
+                        <option value="United States" className="text-boffin-background">United States</option>
+                        <option value="United Kingdom" className="text-boffin-background">United Kingdom</option>
+                        <option value="Canada" className="text-boffin-background">Canada</option>
+                        <option value="Australia" className="text-boffin-background">Australia</option>
+                        <option value="Singapore" className="text-boffin-background">Singapore</option>
+                        <option value="Other" className="text-boffin-background">Other</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-boffin-background">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Educational Background */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-boffin-background mb-6">Educational Background</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="educationLevel" className="block text-boffin-background font-medium mb-2">Highest Education Level*</label>
+                    <div className="relative">
                       <select
                         id="educationLevel"
                         name="educationLevel"
                         value={formData.educationLevel}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                        required
                       >
-                        <option value="">Select education level</option>
-                        <option value="High School">High School</option>
-                        <option value="Associate's Degree">Associate's Degree</option>
-                        <option value="Bachelor's Degree">Bachelor's Degree</option>
-                        <option value="Master's Degree">Master's Degree</option>
-                        <option value="Doctorate">Doctorate</option>
-                        <option value="Other">Other</option>
+                        <option value="" className="text-boffin-background">Select education level</option>
+                        <option value="High School" className="text-boffin-background">High School</option>
+                        <option value="Associate Degree" className="text-boffin-background">Associate Degree</option>
+                        <option value="Bachelor's Degree" className="text-boffin-background">Bachelor's Degree</option>
+                        <option value="Master's Degree" className="text-boffin-background">Master's Degree</option>
+                        <option value="Doctorate" className="text-boffin-background">Doctorate</option>
+                        <option value="Other" className="text-boffin-background">Other</option>
                       </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-boffin-background">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                      </div>
                     </div>
-                    
-                    <div>
-                      <label htmlFor="workExperience" className="block text-gray-700 font-medium mb-2">Years of Work Experience</label>
+                  </div>
+                  <div>
+                    <label htmlFor="workExperience" className="block text-boffin-background font-medium mb-2">Work Experience*</label>
+                    <div className="relative">
                       <select
                         id="workExperience"
                         name="workExperience"
                         value={formData.workExperience}
                         onChange={handleChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                        required
                       >
-                        <option value="">Select years of experience</option>
-                        <option value="0-1">0-1 years</option>
-                        <option value="1-3">1-3 years</option>
-                        <option value="3-5">3-5 years</option>
-                        <option value="5-10">5-10 years</option>
-                        <option value="10+">10+ years</option>
+                        <option value="" className="text-boffin-background">Select work experience</option>
+                        <option value="None" className="text-boffin-background">None</option>
+                        <option value="Less than 1 year" className="text-boffin-background">Less than 1 year</option>
+                        <option value="1-3 years" className="text-boffin-background">1-3 years</option>
+                        <option value="3-5 years" className="text-boffin-background">3-5 years</option>
+                        <option value="5-10 years" className="text-boffin-background">5-10 years</option>
+                        <option value="10+ years" className="text-boffin-background">10+ years</option>
                       </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-boffin-background">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="mb-6">
-                    <label htmlFor="hearAboutUs" className="block text-gray-700 font-medium mb-2">How did you hear about us?</label>
-                    <select
-                      id="hearAboutUs"
-                      name="hearAboutUs"
-                      value={formData.hearAboutUs}
-                      onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    >
-                      <option value="">Select an option</option>
-                      <option value="Search Engine">Search Engine</option>
-                      <option value="Social Media">Social Media</option>
-                      <option value="Friend/Colleague">Friend/Colleague</option>
-                      <option value="Advertisement">Advertisement</option>
-                      <option value="Email">Email</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                  
+                </div>
+              </div>
+              
+              {/* Additional Information */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold text-boffin-background mb-6">Additional Information</h2>
+                
+                {/* Dynamic fields based on course category */}
+                {renderCategorySpecificFields()}
+                
+                {/* Dynamic fields based on specific course */}
+                {renderCourseSpecificFields()}
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
-                    <label htmlFor="specialRequirements" className="block text-gray-700 font-medium mb-2">Special Requirements or Questions</label>
+                    <label htmlFor="hearAboutUs" className="block text-boffin-background font-medium mb-2">How did you hear about us?</label>
+                    <div className="relative">
+                      <select
+                        id="hearAboutUs"
+                        name="hearAboutUs"
+                        value={formData.hearAboutUs}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
+                      >
+                        <option value="" className="text-boffin-background">Select an option</option>
+                        <option value="Search Engine" className="text-boffin-background">Search Engine</option>
+                        <option value="Social Media" className="text-boffin-background">Social Media</option>
+                        <option value="Friend/Colleague" className="text-boffin-background">Friend/Colleague</option>
+                        <option value="Advertisement" className="text-boffin-background">Advertisement</option>
+                        <option value="Email" className="text-boffin-background">Email</option>
+                        <option value="Other" className="text-boffin-background">Other</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-boffin-background">
+                        <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="specialRequirements" className="block text-boffin-background font-medium mb-2">Special Requirements or Questions</label>
                     <textarea
                       id="specialRequirements"
                       name="specialRequirements"
                       value={formData.specialRequirements}
                       onChange={handleChange}
                       rows={4}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
                     ></textarea>
                   </div>
                 </div>
-                
-                {/* Submit Button */}
-                <div className="flex justify-end">
-                  <button
-                    type="submit"
-                    className="bg-primary text-white px-6 py-3 rounded-lg font-bold hover:bg-primary/90 transition-colors"
-                  >
-                    Submit Registration
-                  </button>
-                </div>
-              </form>
-            </div>
+              </div>
+              
+              {/* Submit Button */}
+              <div className="mt-8">
+                <button 
+                  type="submit" 
+                  disabled={formStatus.submitted}
+                  className={`w-full py-3 px-6 text-white font-semibold rounded-md transition duration-200 ${formStatus.submitted ? 'bg-gray-400 cursor-not-allowed' : 'bg-boffin-primary hover:bg-boffin-secondary'}`}
+                >
+                  {formStatus.submitted ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Processing...
+                    </span>
+                  ) : 'Submit Registration'}
+                </button>
+              </div>
+            </form>
           </div>
-        </div>
+        </Container>
       </section>
 
       {/* Related Courses */}
       {selectedCourse && (
         <section className="py-16 bg-gray-100">
-          <div className="container-custom">
+          <Container>
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 mb-6">You Might Also Be Interested In</h2>
               <p className="text-xl text-gray-700 max-w-3xl mx-auto">
@@ -860,14 +941,14 @@ export default function RegisterPage() {
                     </Link>
                     <div className="p-6">
                       <h3 className="text-xl font-bold text-gray-900 mb-2">
-                        <Link href={`/courses/${course.slug}`} className="hover:text-primary transition-colors">
+                        <Link href={`/courses/${course.slug}`} className="hover:text-boffin-primary transition-colors">
                           {course.title}
                         </Link>
                       </h3>
                       <p className="text-gray-700 mb-4 line-clamp-2">{course.description}</p>
                       <Link 
                         href={`/register?courseId=${course.id}`}
-                        className="text-primary font-bold hover:underline"
+                        className="text-boffin-primary font-bold hover:underline"
                       >
                         Register Now
                       </Link>
@@ -875,7 +956,7 @@ export default function RegisterPage() {
                   </div>
                 ))}
             </div>
-          </div>
+          </Container>
         </section>
       )}
     </div>
