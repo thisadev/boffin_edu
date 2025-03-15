@@ -1,0 +1,35 @@
+"use client";
+
+import Link from 'next/link';
+import { CourseCategory } from '@/data/courses';
+import PlaceholderImage from '@/components/ui/PlaceholderImage';
+
+interface CategoryCardProps {
+  category: CourseCategory;
+}
+
+export default function CategoryCard({ category }: CategoryCardProps) {
+  return (
+    <Link 
+      href={`/courses/category/${category.slug}`}
+      className="group block bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-lg hover:-translate-y-1"
+    >
+      <div className="relative h-48 w-full">
+        <PlaceholderImage 
+          src={category.image} 
+          fallbackSrc="/images/category-placeholder.jpg"
+          alt={category.title}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+          <h3 className="text-white text-xl font-bold p-6">{category.title}</h3>
+        </div>
+      </div>
+      <div className="p-6">
+        <p className="text-gray-700">{category.description}</p>
+      </div>
+    </Link>
+  );
+}
