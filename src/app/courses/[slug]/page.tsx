@@ -92,9 +92,12 @@ export default function CourseDetailPage() {
               </div>
               
               <div className="flex space-x-4">
-                <button className="flex-1 bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors">
+                <Link 
+                  href={`/register?category=${course.category}&courseId=${course.id}`}
+                  className="flex-1 bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors text-center"
+                >
                   Enroll Now
-                </button>
+                </Link>
                 <button className="bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors">
                   Download Syllabus
                 </button>
@@ -200,9 +203,12 @@ export default function CourseDetailPage() {
               </ul>
               
               <div className="border-t border-gray-200 my-6 pt-6">
-                <button className="w-full bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors mb-4">
+                <Link 
+                  href={`/register?category=${course.category}&courseId=${course.id}`}
+                  className="w-full bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary/90 transition-colors mb-4 block text-center"
+                >
                   Enroll Now
-                </button>
+                </Link>
                 <button className="w-full bg-gray-200 text-gray-800 font-bold py-3 px-6 rounded-lg hover:bg-gray-300 transition-colors">
                   Download Syllabus
                 </button>

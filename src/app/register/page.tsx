@@ -94,6 +94,27 @@ export default function RegisterPage() {
     }
   }, [formData.category]);
 
+  // Handle URL parameters on initial load
+  useEffect(() => {
+    const categoryParam = searchParams?.get('category');
+    const courseIdParam = searchParams?.get('courseId');
+    
+    // Verify that the course exists and matches the category
+    if (courseIdParam) {
+      const selectedCourse = courses.find(course => course.id === courseIdParam);
+      if (selectedCourse && (!categoryParam || selectedCourse.category === categoryParam)) {
+        // If course exists but category doesn't match or isn't provided, use the course's category
+        if (!categoryParam || selectedCourse.category !== categoryParam) {
+          setFormData(prev => ({
+            ...prev,
+            category: selectedCourse.category,
+            courseId: courseIdParam
+          }));
+        }
+      }
+    }
+  }, [searchParams]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
@@ -527,11 +548,12 @@ export default function RegisterPage() {
                         value={formData.courseId}
                         onChange={handleChange}
                         className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                        required
                       >
                         <option value="">Select a course</option>
                         {filteredCourses.map(course => (
-                          <option key={course.id} value={course.id}>{course.title}</option>
+                          <option key={course.id} value={course.id}>
+                            {course.title}
+                          </option>
                         ))}
                       </select>
                     </div>
