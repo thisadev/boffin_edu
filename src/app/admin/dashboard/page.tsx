@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
+  const [recentRegistrations, setRecentRegistrations] = useState<any[]>([]);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -20,6 +21,7 @@ export default function AdminDashboard() {
           setUser(data.user);
           // Fetch dashboard stats
           fetchStats();
+          fetchRecentRegistrations();
         } else {
           // Redirect to login if not authenticated
           console.log("Not authenticated, redirecting to login");
@@ -38,19 +40,27 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      // Mock stats for now
-      setStats({
-        totalRegistrations: 125,
-        pendingRegistrations: 15,
-        completedRegistrations: 110,
-        recentRegistrations: [
-          { id: "1", name: "John Doe", course: "Advanced Physics", date: "2025-03-10" },
-          { id: "2", name: "Jane Smith", course: "Quantum Computing", date: "2025-03-12" },
-          { id: "3", name: "Bob Johnson", course: "Artificial Intelligence", date: "2025-03-14" },
-        ],
-      });
+      const response = await fetch("/api/admin/stats");
+      if (!response.ok) {
+        throw new Error("Failed to fetch stats");
+      }
+      const data = await response.json();
+      setStats(data);
     } catch (error) {
       console.error("Error fetching stats:", error);
+    }
+  };
+
+  const fetchRecentRegistrations = async () => {
+    try {
+      const response = await fetch("/api/admin/registrations?limit=5");
+      if (!response.ok) {
+        throw new Error("Failed to fetch recent registrations");
+      }
+      const data = await response.json();
+      setRecentRegistrations(data.registrations || []);
+    } catch (error) {
+      console.error("Error fetching recent registrations:", error);
     }
   };
 
@@ -64,6 +74,11 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error("Error logging out:", error);
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
   if (loading) {
@@ -111,30 +126,51 @@ export default function AdminDashboard() {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold mb-2">Total Courses</h2>
+              <p className="text-3xl font-bold text-purple-600">{stats.totalCourses}</p>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-lg font-semibold mb-2">Total Categories</h2>
+              <p className="text-3xl font-bold text-indigo-600">{stats.totalCategories}</p>
+            </div>
+          </div>
+
           <div className="bg-white rounded-lg shadow p-6">
             <h2 className="text-lg font-semibold mb-4">Recent Registrations</h2>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {stats.recentRegistrations.map((reg: any) => (
-                    <tr key={reg.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{reg.id}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reg.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reg.course}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reg.date}</td>
+            {recentRegistrations.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {recentRegistrations.map((reg: any) => (
+                      <tr key={reg.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{reg.id}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reg.user?.firstName} {reg.user?.lastName}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{reg.course?.title}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${reg.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}`}>
+                            {reg.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatDate(reg.registrationDate)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-4 text-gray-500">No recent registrations found</div>
+            )}
           </div>
         </>
       )}

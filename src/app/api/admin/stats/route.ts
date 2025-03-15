@@ -1,15 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   try {
-    // For now, return mock data since we're focusing on authentication
+    // Get counts from the database
+    const [totalCourses, totalCategories, totalRegistrations, pendingRegistrations] = await Promise.all([
+      prisma.course.count(),
+      prisma.courseCategory.count(),
+      prisma.registration.count(),
+      prisma.registration.count({
+        where: {
+          status: "pending"
+        }
+      })
+    ]);
+
+    // Calculate completed registrations
+    const completedRegistrations = totalRegistrations - pendingRegistrations;
+
+    // Get instructor count (for now, we'll just use a placeholder)
+    const totalInstructors = await prisma.courseInstructor.count();
+
     return NextResponse.json({
-      totalCourses: 3,
-      totalCategories: 3,
-      totalRegistrations: 0,
-      totalInstructors: 1,
-      pendingRegistrations: 0,
+      totalCourses,
+      totalCategories,
+      totalRegistrations,
+      totalInstructors,
+      pendingRegistrations,
+      completedRegistrations
     });
   } catch (error) {
     console.error("Error fetching admin stats:", error);

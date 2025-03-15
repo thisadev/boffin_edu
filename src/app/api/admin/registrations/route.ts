@@ -11,6 +11,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const categoryId = searchParams.get("categoryId");
+    const limitParam = searchParams.get("limit");
+    const limit = limitParam ? parseInt(limitParam) : undefined;
 
     // Build the where clause based on filters
     const where: any = {};
@@ -25,7 +27,7 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    console.log("Fetching registrations with filters:", where);
+    console.log("Fetching registrations with filters:", where, "limit:", limit);
 
     // Fetch registrations with related data
     const registrations = await prisma.registration.findMany({
@@ -54,12 +56,16 @@ export async function GET(request: NextRequest) {
       orderBy: {
         registrationDate: "desc",
       },
+      ...(limit ? { take: limit } : {}),
     });
 
     console.log(`Found ${registrations.length} registrations`);
     
-    // Return empty array if no registrations found (not an error)
-    return NextResponse.json(registrations);
+    // Return registrations in a structured format
+    return NextResponse.json({
+      registrations,
+      count: registrations.length,
+    });
   } catch (error) {
     console.error("Error fetching registrations:", error);
     return NextResponse.json(
