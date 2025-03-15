@@ -1,12 +1,6 @@
 import { Suspense } from 'react';
-import dynamic from 'next/dynamic';
 import { Container } from '@/components/ui/container';
-
-// Use dynamic import to avoid server-side rendering issues
-const RegisterFormClient = dynamic(
-  () => import('@/components/register/RegisterFormClient'),
-  { ssr: false }
-);
+import RegisterFormClient from '@/components/register/RegisterFormClient';
 
 export default function RegisterPage() {
   return (
