@@ -61,9 +61,15 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
     const { id } = params;
     const data = await request.json();
+    console.log(`Updating testimonial ${id} with data:`, data);
 
     // Validate required fields
     if (!data.registrationId || !data.content || !data.rating) {
+      console.log("Missing required fields:", {
+        registrationId: !!data.registrationId,
+        content: !!data.content,
+        rating: !!data.rating
+      });
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -83,9 +89,9 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const updatedTestimonial = await prisma.testimonial.update({
       where: { id },
       data: {
-        registrationId: data.registrationId,
+        registrationId: parseInt(data.registrationId),
         content: data.content,
-        rating: data.rating,
+        rating: parseInt(data.rating),
         designation: data.designation || null,
         workplace: data.workplace || null,
         university: data.university || null,
@@ -95,11 +101,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       },
     });
 
+    console.log(`Testimonial ${id} updated successfully`);
     return NextResponse.json(updatedTestimonial);
   } catch (error) {
     console.error("Error updating testimonial:", error);
     return NextResponse.json(
-      { error: "Failed to update testimonial" },
+      { error: "Failed to update testimonial", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -115,6 +122,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     }
 
     const { id } = params;
+    console.log(`Deleting testimonial ${id}`);
 
     // Check if testimonial exists
     const existingTestimonial = await prisma.testimonial.findUnique({
@@ -130,11 +138,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       where: { id },
     });
 
+    console.log(`Testimonial ${id} deleted successfully`);
     return NextResponse.json({ message: "Testimonial deleted successfully" });
   } catch (error) {
     console.error("Error deleting testimonial:", error);
     return NextResponse.json(
-      { error: "Failed to delete testimonial" },
+      { error: "Failed to delete testimonial", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }

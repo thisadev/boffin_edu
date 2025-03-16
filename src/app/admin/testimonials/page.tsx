@@ -94,20 +94,28 @@ export default function TestimonialsPage() {
       try {
         // Fetch testimonials
         const testimonialRes = await fetch("/api/admin/testimonials");
-        if (!testimonialRes.ok) throw new Error("Failed to fetch testimonials");
+        if (!testimonialRes.ok) {
+          const errorData = await testimonialRes.json();
+          throw new Error(`Failed to fetch testimonials: ${errorData.error || testimonialRes.statusText}`);
+        }
         const testimonialData = await testimonialRes.json();
         setTestimonials(testimonialData);
+        console.log("Testimonials loaded:", testimonialData.length);
 
         // Fetch registrations
         const registrationRes = await fetch("/api/admin/registrations");
-        if (!registrationRes.ok) throw new Error("Failed to fetch registrations");
+        if (!registrationRes.ok) {
+          const errorData = await registrationRes.json();
+          throw new Error(`Failed to fetch registrations: ${errorData.error || registrationRes.statusText}`);
+        }
         const registrationData = await registrationRes.json();
         setRegistrations(registrationData);
+        console.log("Registrations loaded:", registrationData.length);
       } catch (error) {
         console.error("Error fetching data:", error);
         toast({
           title: "Error",
-          description: "Failed to load data. Please try again.",
+          description: error instanceof Error ? error.message : "Failed to load data. Please try again.",
           variant: "destructive",
         });
       } finally {
@@ -177,6 +185,27 @@ export default function TestimonialsPage() {
   // Submit form to create or update a testimonial
   const handleSubmit = async () => {
     try {
+      // Validate form data
+      if (!formData.registrationId) {
+        toast({
+          title: "Validation Error",
+          description: "Please select a student registration",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!formData.content) {
+        toast({
+          title: "Validation Error",
+          description: "Please enter testimonial content",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("Submitting testimonial form data:", formData);
+      
       const url = currentTestimonial
         ? `/api/admin/testimonials/${currentTestimonial.id}`
         : "/api/admin/testimonials";
@@ -191,12 +220,16 @@ export default function TestimonialsPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to save testimonial");
+        const errorData = await response.json();
+        throw new Error(`Failed to save testimonial: ${errorData.error || errorData.details || response.statusText}`);
       }
 
       // Refresh testimonials list
       const refreshResponse = await fetch("/api/admin/testimonials");
-      if (!refreshResponse.ok) throw new Error("Failed to refresh testimonials");
+      if (!refreshResponse.ok) {
+        const errorData = await refreshResponse.json();
+        throw new Error(`Failed to refresh testimonials: ${errorData.error || refreshResponse.statusText}`);
+      }
       const refreshData = await refreshResponse.json();
       setTestimonials(refreshData);
 
@@ -211,7 +244,7 @@ export default function TestimonialsPage() {
       console.error("Error saving testimonial:", error);
       toast({
         title: "Error",
-        description: "Failed to save testimonial. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to save testimonial. Please try again.",
         variant: "destructive",
       });
     }
@@ -222,17 +255,23 @@ export default function TestimonialsPage() {
     if (!currentTestimonial) return;
 
     try {
+      console.log(`Deleting testimonial: ${currentTestimonial.id}`);
+      
       const response = await fetch(`/api/admin/testimonials/${currentTestimonial.id}`, {
         method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete testimonial");
+        const errorData = await response.json();
+        throw new Error(`Failed to delete testimonial: ${errorData.error || errorData.details || response.statusText}`);
       }
 
       // Refresh testimonials list
       const refreshResponse = await fetch("/api/admin/testimonials");
-      if (!refreshResponse.ok) throw new Error("Failed to refresh testimonials");
+      if (!refreshResponse.ok) {
+        const errorData = await refreshResponse.json();
+        throw new Error(`Failed to refresh testimonials: ${errorData.error || refreshResponse.statusText}`);
+      }
       const refreshData = await refreshResponse.json();
       setTestimonials(refreshData);
 
@@ -245,7 +284,7 @@ export default function TestimonialsPage() {
       console.error("Error deleting testimonial:", error);
       toast({
         title: "Error",
-        description: "Failed to delete testimonial. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to delete testimonial. Please try again.",
         variant: "destructive",
       });
     }

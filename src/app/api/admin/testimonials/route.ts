@@ -12,6 +12,8 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    console.log("Fetching all testimonials for admin panel");
+
     // Fetch all testimonials with registration, user, and course data
     const testimonials = await prisma.testimonial.findMany({
       include: {
@@ -37,11 +39,12 @@ export async function GET() {
       ],
     });
 
+    console.log(`Found ${testimonials.length} testimonials`);
     return NextResponse.json(testimonials);
   } catch (error) {
     console.error("Error fetching testimonials:", error);
     return NextResponse.json(
-      { error: "Failed to fetch testimonials" },
+      { error: "Failed to fetch testimonials", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
@@ -58,9 +61,15 @@ export async function POST(request: NextRequest) {
 
     // Get request body
     const data = await request.json();
+    console.log("Creating new testimonial with data:", data);
 
     // Validate required fields
     if (!data.registrationId || !data.content || !data.rating) {
+      console.log("Missing required fields:", {
+        registrationId: !!data.registrationId,
+        content: !!data.content,
+        rating: !!data.rating
+      });
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -70,9 +79,9 @@ export async function POST(request: NextRequest) {
     // Create testimonial
     const testimonial = await prisma.testimonial.create({
       data: {
-        registrationId: data.registrationId,
+        registrationId: parseInt(data.registrationId),
         content: data.content,
-        rating: data.rating,
+        rating: parseInt(data.rating),
         designation: data.designation || null,
         workplace: data.workplace || null,
         university: data.university || null,
@@ -82,11 +91,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log("Testimonial created successfully:", testimonial.id);
     return NextResponse.json(testimonial, { status: 201 });
   } catch (error) {
     console.error("Error creating testimonial:", error);
     return NextResponse.json(
-      { error: "Failed to create testimonial" },
+      { error: "Failed to create testimonial", details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
