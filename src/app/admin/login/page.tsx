@@ -10,19 +10,25 @@ export default function AdminLogin() {
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [redirectAttempted, setRedirectAttempted] = useState(false);
 
   useEffect(() => {
-    // If user is authenticated, redirect to dashboard
-    if (status === "authenticated" && session) {
+    // Only attempt redirect once to prevent loops
+    if (status === "authenticated" && session && !redirectAttempted) {
       console.log("User is authenticated, redirecting to dashboard");
+      setRedirectAttempted(true);
       // Use window.location for a hard redirect
-      window.location.href = "/admin/dashboard";
+      window.location.replace("/admin/dashboard");
     }
-  }, [session, status]);
+  }, [session, status, redirectAttempted]);
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
     signIn("google", { callbackUrl: "/admin/dashboard" });
+  };
+
+  const goToDashboard = () => {
+    window.location.replace("/admin/dashboard");
   };
 
   // Show loading state while checking session
@@ -37,16 +43,16 @@ export default function AdminLogin() {
     );
   }
 
-  // If already authenticated, show message (though this should redirect quickly)
+  // If already authenticated, show message with manual redirect button
   if (status === "authenticated") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-800">Already authenticated</h2>
-          <p className="mt-2 text-gray-600">Redirecting to dashboard...</p>
+          <p className="mt-2 text-gray-600">You're already signed in.</p>
           <div className="mt-4">
             <button 
-              onClick={() => window.location.href = "/admin/dashboard"}
+              onClick={goToDashboard}
               className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
             >
               Go to Dashboard

@@ -7,16 +7,11 @@ import Link from "next/link";
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { data: session, status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      // Redirect to login page if not authenticated
-      window.location.href = "/admin/login";
-    },
-  });
+  const { data: session, status } = useSession();
   const [stats, setStats] = useState<any>(null);
   const [recentRegistrations, setRecentRegistrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [redirectAttempted, setRedirectAttempted] = useState(false);
 
   useEffect(() => {
     // Only fetch data if authenticated
@@ -26,8 +21,13 @@ export default function AdminDashboard() {
       fetchStats();
       fetchRecentRegistrations();
       setLoading(false);
+    } else if (status === "unauthenticated" && !redirectAttempted) {
+      // Only attempt redirect once to prevent loops
+      setRedirectAttempted(true);
+      console.log("Not authenticated, redirecting to login");
+      window.location.replace("/admin/login");
     }
-  }, [session, status]);
+  }, [session, status, redirectAttempted]);
 
   const fetchStats = async () => {
     try {
@@ -76,7 +76,22 @@ export default function AdminDashboard() {
   }
 
   if (status === "unauthenticated") {
-    return null; // Will redirect in the onUnauthenticated callback
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-800">Not authenticated</h2>
+          <p className="mt-2 text-gray-600">Please sign in to access the dashboard</p>
+          <div className="mt-4">
+            <button 
+              onClick={() => window.location.replace("/admin/login")}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
