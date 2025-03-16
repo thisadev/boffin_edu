@@ -2,41 +2,30 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: session, status } = useSession();
   const [stats, setStats] = useState<any>(null);
   const [recentRegistrations, setRecentRegistrations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const res = await fetch("/api/auth/session");
-        const data = await res.json();
-        console.log("Session data:", data);
-
-        if (data.user) {
-          setUser(data.user);
-          // Fetch dashboard stats
-          fetchStats();
-          fetchRecentRegistrations();
-        } else {
-          // Redirect to login if not authenticated
-          console.log("Not authenticated, redirecting to login");
-          router.push("/admin/login");
-        }
-      } catch (error) {
-        console.error("Error checking session:", error);
-        router.push("/admin/login");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkSession();
-  }, [router]);
+    // Check if user is authenticated
+    if (status === "authenticated" && session?.user) {
+      console.log("User authenticated:", session.user);
+      // Fetch dashboard stats
+      fetchStats();
+      fetchRecentRegistrations();
+      setLoading(false);
+    } else if (status === "unauthenticated") {
+      // Redirect to login if not authenticated
+      console.log("Not authenticated, redirecting to login");
+      router.push("/admin/login");
+    }
+  }, [session, status, router]);
 
   const fetchStats = async () => {
     try {
@@ -53,139 +42,130 @@ export default function AdminDashboard() {
 
   const fetchRecentRegistrations = async () => {
     try {
-      const response = await fetch("/api/admin/registrations?limit=5");
+      const response = await fetch("/api/admin/registrations/recent");
       if (!response.ok) {
         throw new Error("Failed to fetch recent registrations");
       }
       const data = await response.json();
-      setRecentRegistrations(data.registrations || []);
+      setRecentRegistrations(data);
     } catch (error) {
       console.error("Error fetching recent registrations:", error);
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      // Clear the session cookie
-      document.cookie = "next-auth.session-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      
-      // Redirect to login page
-      router.push("/admin/login");
-    } catch (error) {
-      console.error("Error logging out:", error);
-    }
-  };
-
+  // Helper function to format dates
   const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    return date.toLocaleDateString();
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        <span className="ml-3 text-gray-700">Loading dashboard...</span>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-800">Loading dashboard...</h2>
+          <div className="mt-4 flex justify-center">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-900"></div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // If not authenticated, show login button
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
-          <h1 className="text-2xl font-bold text-blue-900 mb-4">Not Authenticated</h1>
-          <p className="text-gray-600 mb-6">You need to log in to access the admin dashboard.</p>
-          <button 
-            onClick={() => window.location.href = '/admin/login'}
-            className="w-full bg-blue-900 text-white py-2 px-4 rounded-md hover:bg-blue-800 transition duration-200"
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
+  if (!session?.user) {
+    return null; // Will redirect in the useEffect
   }
 
   return (
-    <div className="">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-boffin-background">Admin Dashboard</h1>
-        <div className="flex items-center">
-          {user && (
-            <span className="mr-4 text-gray-600">
-              Welcome, {user.name || user.email}
-            </span>
-          )}
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+        <p className="text-gray-600">Welcome, {session.user.name || session.user.email}</p>
+      </div>
+
+      {/* Dashboard stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Total Students</h2>
+          <p className="text-3xl font-bold text-blue-600">{stats?.totalStudents || 0}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Active Courses</h2>
+          <p className="text-3xl font-bold text-green-600">{stats?.activeCourses || 0}</p>
+        </div>
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-semibold mb-2">Total Revenue</h2>
+          <p className="text-3xl font-bold text-purple-600">Rs. {stats?.totalRevenue?.toLocaleString() || 0}</p>
         </div>
       </div>
 
-      {stats && (
-        <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold mb-2 text-boffin-background">Total Registrations</h2>
-              <p className="text-3xl font-bold text-boffin-primary">{stats.totalRegistrations}</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold mb-2 text-boffin-background">Pending Registrations</h2>
-              <p className="text-3xl font-bold text-boffin-primary">{stats.pendingRegistrations}</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold mb-2 text-boffin-background">Completed Registrations</h2>
-              <p className="text-3xl font-bold text-boffin-primary">{stats.completedRegistrations}</p>
-            </div>
+      {/* Recent registrations */}
+      <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+        <h2 className="text-xl font-semibold mb-4">Recent Registrations</h2>
+        {recentRegistrations.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Student
+                  </th>
+                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Course
+                  </th>
+                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="py-2 px-4 border-b border-gray-200 bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentRegistrations.map((reg, index) => (
+                  <tr key={index}>
+                    <td className="py-2 px-4 border-b border-gray-200">{reg.studentName}</td>
+                    <td className="py-2 px-4 border-b border-gray-200">{reg.courseName}</td>
+                    <td className="py-2 px-4 border-b border-gray-200">{formatDate(reg.date)}</td>
+                    <td className="py-2 px-4 border-b border-gray-200">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          reg.status === "Completed"
+                            ? "bg-green-100 text-green-800"
+                            : reg.status === "In Progress"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {reg.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+        ) : (
+          <p className="text-gray-500">No recent registrations found.</p>
+        )}
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold mb-2 text-boffin-background">Total Courses</h2>
-              <p className="text-3xl font-bold text-boffin-primary">{stats.totalCourses}</p>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-semibold mb-2 text-boffin-background">Total Categories</h2>
-              <p className="text-3xl font-bold text-boffin-primary">{stats.totalCategories}</p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-lg font-semibold mb-4 text-boffin-background">Recent Registrations</h2>
-            {recentRegistrations.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-boffin-background uppercase tracking-wider">ID</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-boffin-background uppercase tracking-wider">User</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-boffin-background uppercase tracking-wider">Course</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-boffin-background uppercase tracking-wider">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-boffin-background uppercase tracking-wider">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {recentRegistrations.map((reg: any) => (
-                      <tr key={reg.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-boffin-background">{reg.id}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-boffin-background/80">{reg.user?.firstName} {reg.user?.lastName}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-boffin-background/80">{reg.course?.title}</td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${reg.status === 'pending' ? 'bg-yellow-100 text-boffin-primary' : 'bg-green-100 text-boffin-primary'}`}>
-                            {reg.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-boffin-background/80">{formatDate(reg.registrationDate)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center py-4 text-boffin-background/70">No recent registrations found</div>
-            )}
-          </div>
-        </>
-      )}
+      {/* Quick actions */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Link href="/admin/courses/new" className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded text-center">
+            Add New Course
+          </Link>
+          <Link href="/admin/students" className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded text-center">
+            View Student Reports
+          </Link>
+          <Link href="/admin/testimonials" className="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded text-center">
+            Manage Testimonials
+          </Link>
+        </div>
+      </div>
     </div>
   );
 }

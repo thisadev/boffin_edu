@@ -3,48 +3,41 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 export default function AdminLogin() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check if user is already authenticated
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("/api/auth/check", {
-          method: "GET",
-          headers: {
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            "Pragma": "no-cache"
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.authenticated) {
-            console.log("User is already authenticated");
-            setIsAuthenticated(true);
-            router.push("/admin/dashboard");
-          }
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-      }
-    };
-
-    checkAuth();
-  }, [router]);
+    // If user is authenticated, redirect to dashboard
+    if (status === "authenticated" && session) {
+      console.log("User is authenticated, redirecting to dashboard");
+      router.push("/admin/dashboard");
+    }
+  }, [session, status, router]);
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
     signIn("google", { callbackUrl: "/admin/dashboard" });
   };
 
-  if (isAuthenticated) {
+  // Show loading state while checking session
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-800">Checking authentication...</h2>
+          <p className="mt-2 text-gray-600">Please wait...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If already authenticated, show message (though this should redirect quickly)
+  if (status === "authenticated") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
