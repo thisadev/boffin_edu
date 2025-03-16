@@ -90,6 +90,24 @@ export default function AdminDashboard() {
     );
   }
 
+  // If not authenticated, show login button
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
+        <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+          <h1 className="text-2xl font-bold text-blue-900 mb-4">Not Authenticated</h1>
+          <p className="text-gray-600 mb-6">You need to log in to access the admin dashboard.</p>
+          <button 
+            onClick={() => window.location.href = '/admin/login'}
+            className="w-full bg-blue-900 text-white py-2 px-4 rounded-md hover:bg-blue-800 transition duration-200"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="">
       <div className="flex justify-between items-center mb-8">

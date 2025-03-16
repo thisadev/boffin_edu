@@ -22,8 +22,18 @@ export async function middleware(request: NextRequest) {
     console.log(`Middleware: Path=${path}, Authenticated=${isAuthenticated}`);
     console.log(`Middleware: SessionCookie=${!!sessionCookie}, JwtCookie=${!!jwtCookie}`);
 
+    // Check for force-signout or direct login access
+    const isSignOutFlow = path === "/api/auth/force-signout" || 
+                         path === "/admin/login" && request.nextUrl.searchParams.has("forcedSignout") ||
+                         path === "/admin/login" && request.nextUrl.searchParams.has("signedOut");
+
     // Redirect logic
     if (isAdminPath && !isAuthenticated) {
+      // Don't redirect if it's the dashboard page - let the client-side handle it
+      if (path === "/admin/dashboard") {
+        return NextResponse.next();
+      }
+      
       console.log("Middleware: Not authenticated, redirecting to login");
       // Add a cache-busting parameter to prevent caching issues
       const loginUrl = new URL("/admin/login", request.url);
@@ -41,7 +51,7 @@ export async function middleware(request: NextRequest) {
       return response;
     } 
     
-    if (isPublicPath && isAuthenticated && path !== "/api/auth/force-signout") {
+    if (isPublicPath && isAuthenticated && !isSignOutFlow) {
       // If user is already logged in and tries to access login page, redirect to dashboard
       // But don't redirect if they're trying to sign out
       console.log("Middleware: Already authenticated, redirecting to dashboard");
