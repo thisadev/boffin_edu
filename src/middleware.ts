@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
   // Define public paths that don't require authentication
-  const isPublicPath = path === "/admin/login";
+  const isPublicPath = path === "/admin/login" || path.startsWith("/api/auth/");
   
   // Define admin paths that require authentication
   const isAdminPath = path.startsWith("/admin") && !isPublicPath;
@@ -29,11 +29,21 @@ export async function middleware(request: NextRequest) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("from", "middleware");
       loginUrl.searchParams.set("t", Date.now().toString());
-      return NextResponse.redirect(loginUrl);
+      
+      // Create response with redirect
+      const response = NextResponse.redirect(loginUrl);
+      
+      // Set cache control headers
+      response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+      response.headers.set("Pragma", "no-cache");
+      response.headers.set("Expires", "0");
+      
+      return response;
     } 
     
-    if (isPublicPath && isAuthenticated) {
+    if (isPublicPath && isAuthenticated && path !== "/api/auth/force-signout") {
       // If user is already logged in and tries to access login page, redirect to dashboard
+      // But don't redirect if they're trying to sign out
       console.log("Middleware: Already authenticated, redirecting to dashboard");
       return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
@@ -47,10 +57,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  // For all other requests, add cache control headers
+  const response = NextResponse.next();
+  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
+  response.headers.set("Pragma", "no-cache");
+  response.headers.set("Expires", "0");
+  
+  return response;
 }
 
 // Configure which paths should use this middleware
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/auth/:path*"],
 };

@@ -14,9 +14,9 @@ export default function AdminLogin() {
 
   // Check if user is already authenticated
   useEffect(() => {
-    // Check if we have a signedOut parameter in the URL
+    // Check if we have a signedOut or forcedSignout parameter in the URL
     const urlParams = new URLSearchParams(window.location.search);
-    const signedOut = urlParams.get('signedOut');
+    const signedOut = urlParams.get('signedOut') || urlParams.get('forcedSignout');
     
     // If we just signed out, don't redirect back to dashboard and clear any remaining auth data
     if (signedOut) {

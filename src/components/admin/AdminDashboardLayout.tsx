@@ -78,9 +78,9 @@ export default function AdminDashboardLayout({
 
   // Handle sign out
   const handleSignOut = () => {
-    console.log("Redirecting to dedicated sign-out page");
-    // Navigate to our dedicated sign-out page that handles the complete sign-out process
-    window.location.href = "/admin/signout";
+    console.log("Using direct force-signout API");
+    // Navigate directly to our force-signout API that handles everything server-side
+    window.location.href = "/api/auth/force-signout";
   };
 
   return (
