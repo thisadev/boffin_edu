@@ -77,28 +77,10 @@ export default function AdminDashboardLayout({
   ];
 
   // Handle sign out
-  const handleSignOut = async () => {
-    try {
-      console.log("Signing out...");
-      
-      // First, clear any local storage items related to authentication
-      localStorage.removeItem('next-auth.session-token');
-      localStorage.removeItem('next-auth.callback-url');
-      localStorage.removeItem('next-auth.csrf-token');
-      sessionStorage.removeItem('next-auth.session-token');
-      sessionStorage.removeItem('next-auth.callback-url');
-      sessionStorage.removeItem('next-auth.csrf-token');
-      
-      // Use signOut with redirect: true and force a page reload
-      await signOut({
-        redirect: true,
-        callbackUrl: '/admin/login'
-      });
-    } catch (error) {
-      console.error("Sign out error:", error);
-      // Fallback: force redirect to login page
-      window.location.href = '/admin/login';
-    }
+  const handleSignOut = () => {
+    console.log("Redirecting to dedicated sign-out page");
+    // Navigate to our dedicated sign-out page that handles the complete sign-out process
+    window.location.href = "/admin/signout";
   };
 
   return (
