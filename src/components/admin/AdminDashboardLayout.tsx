@@ -15,24 +15,6 @@ export default function AdminDashboardLayout({
   const { data: session, status } = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  // Enhanced authentication check with logging
-  useEffect(() => {
-    console.log("AdminDashboardLayout - Session Status:", status);
-    console.log("AdminDashboardLayout - Session Data:", session);
-    console.log("AdminDashboardLayout - Current Path:", pathname);
-
-    // Skip the check for the login page
-    if (pathname === "/admin/login") {
-      return;
-    }
-
-    // If not authenticated, redirect to login
-    if (status === "unauthenticated" || !session) {
-      console.log("AdminDashboardLayout - Not authenticated, redirecting to login");
-      router.push("/admin/login");
-    }
-  }, [status, router, pathname, session]);
-
   // Skip the layout for the login page
   if (pathname === "/admin/login") {
     return <>{children}</>;
@@ -43,24 +25,6 @@ export default function AdminDashboardLayout({
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  // If not authenticated, don't render anything (will be redirected by useEffect)
-  if (status === "unauthenticated") {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-700">Not authenticated</h2>
-          <p className="mt-2 text-gray-500">Redirecting to login page...</p>
-          <button 
-            onClick={() => router.push("/admin/login")} 
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Go to Login
-          </button>
-        </div>
       </div>
     );
   }
@@ -77,10 +41,15 @@ export default function AdminDashboardLayout({
   ];
 
   // Handle sign out
-  const handleSignOut = () => {
-    console.log("Using direct force-signout API");
-    // Navigate directly to our force-signout API that handles everything server-side
-    window.location.href = "/api/auth/force-signout";
+  const handleSignOut = async () => {
+    try {
+      await signOut({ redirect: false });
+      window.location.href = "/admin/login";
+    } catch (error) {
+      console.error("Error signing out:", error);
+      // Fallback to the force-signout API if client-side signOut fails
+      window.location.href = "/api/auth/force-signout";
+    }
   };
 
   return (

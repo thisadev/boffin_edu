@@ -1,60 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 
 export default function AdminLogin() {
-  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Force navigation to dashboard when authenticated
-  useEffect(() => {
-    if (status === "authenticated" && session) {
-      console.log("User is authenticated, redirecting to dashboard");
-      // Force a hard navigation to the dashboard
-      window.location.href = "/admin/dashboard";
+  const handleGoogleLogin = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+      console.log("Initiating Google sign-in...");
+      
+      // Use the direct approach with Google provider
+      await signIn("google", { 
+        callbackUrl: "/admin/dashboard",
+        redirect: true
+      });
+    } catch (err) {
+      console.error("Sign-in error:", err);
+      setError("Failed to sign in with Google. Please try again.");
+      setIsLoading(false);
     }
-  }, [session, status]);
-
-  const handleGoogleLogin = () => {
-    setIsLoading(true);
-    signIn("google", { callbackUrl: "/admin/dashboard" });
   };
 
-  // Show loading state while checking session
-  if (status === "loading") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-800">Checking authentication...</h2>
-          <p className="mt-2 text-gray-600">Please wait...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If already authenticated, show message with manual redirect button
-  if (status === "authenticated") {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold text-gray-800">Already authenticated</h2>
-          <p className="mt-2 text-gray-600">You're already signed in.</p>
-          <div className="mt-4">
-            <a 
-              href="/admin/dashboard"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 inline-block"
-            >
-              Go to Dashboard
-            </a>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // Default case: Show login form
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -69,10 +41,10 @@ export default function AdminLogin() {
               className="mx-auto h-24 w-auto"
             />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-boffin-background">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-800">
             Admin Login
           </h2>
-          <p className="mt-2 text-center text-sm text-boffin-background/70">
+          <p className="mt-2 text-center text-sm text-gray-600">
             Sign in with your Boffin Institute Google account
           </p>
         </div>

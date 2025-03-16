@@ -12,7 +12,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const registrationId = parseInt(params.id);
+    // Parse the ID directly without accessing params.id first
+    const registrationId = parseInt(String(params?.id || ""));
+    
     if (isNaN(registrationId)) {
       return NextResponse.json({ error: "Invalid registration ID" }, { status: 400 });
     }
