@@ -7,25 +7,27 @@ import Link from "next/link";
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      // Redirect to login page if not authenticated
+      window.location.href = "/admin/login";
+    },
+  });
   const [stats, setStats] = useState<any>(null);
   const [recentRegistrations, setRecentRegistrations] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is authenticated
+    // Only fetch data if authenticated
     if (status === "authenticated" && session?.user) {
       console.log("User authenticated:", session.user);
       // Fetch dashboard stats
       fetchStats();
       fetchRecentRegistrations();
       setLoading(false);
-    } else if (status === "unauthenticated") {
-      // Redirect to login if not authenticated
-      console.log("Not authenticated, redirecting to login");
-      router.push("/admin/login");
     }
-  }, [session, status, router]);
+  }, [session, status]);
 
   const fetchStats = async () => {
     try {
@@ -60,7 +62,7 @@ export default function AdminDashboard() {
     return date.toLocaleDateString();
   };
 
-  if (loading) {
+  if (status === "loading" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -73,15 +75,15 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!session?.user) {
-    return null; // Will redirect in the useEffect
+  if (status === "unauthenticated") {
+    return null; // Will redirect in the onUnauthenticated callback
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-        <p className="text-gray-600">Welcome, {session.user.name || session.user.email}</p>
+        <p className="text-gray-600">Welcome, {session?.user?.name || session?.user?.email}</p>
       </div>
 
       {/* Dashboard stats */}

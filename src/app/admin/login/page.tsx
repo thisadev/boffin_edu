@@ -15,9 +15,10 @@ export default function AdminLogin() {
     // If user is authenticated, redirect to dashboard
     if (status === "authenticated" && session) {
       console.log("User is authenticated, redirecting to dashboard");
-      router.push("/admin/dashboard");
+      // Use window.location for a hard redirect
+      window.location.href = "/admin/dashboard";
     }
-  }, [session, status, router]);
+  }, [session, status]);
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
@@ -43,6 +44,14 @@ export default function AdminLogin() {
         <div className="text-center">
           <h2 className="text-2xl font-semibold text-gray-800">Already authenticated</h2>
           <p className="mt-2 text-gray-600">Redirecting to dashboard...</p>
+          <div className="mt-4">
+            <button 
+              onClick={() => window.location.href = "/admin/dashboard"}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+              Go to Dashboard
+            </button>
+          </div>
         </div>
       </div>
     );
