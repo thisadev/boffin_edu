@@ -1,8 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
 import { NextAuthOptions } from "next-auth";
 
 // Initialize Prisma client
@@ -19,7 +17,7 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
-      role?: string | null;
+      role: string;
     };
   }
 }
@@ -39,56 +37,6 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials, req) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
-        try {
-          // Find user by email
-          const user = await prisma.user.findFirst({
-            where: {
-              email: credentials.email,
-            },
-          });
-
-          console.log("User found:", user ? `${user.email} (${user.role})` : "No user found");
-
-          if (!user || !user.password) {
-            return null;
-          }
-
-          // Verify password
-          const passwordValid = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
-
-          console.log("Password validation:", passwordValid ? "success" : "failed");
-
-          if (!passwordValid) {
-            return null;
-          }
-
-          // Return user data
-          return {
-            id: String(user.id), // Convert to string for NextAuth
-            name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
-            email: user.email,
-            role: user.role,
-          };
-        } catch (error) {
-          console.error("Auth error:", error);
-          return null;
-        }
-      },
-    }),
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
@@ -96,20 +44,26 @@ export const authOptions: NextAuthOptions = {
       if (account?.provider === "google" && profile?.email) {
         return profile.email.endsWith("@boffin.lk");
       }
-      return true; // Allow credential sign-ins
+      return false; // Don't allow any other sign-in methods
     },
     async jwt({ token, user }) {
       // Initial sign in
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
+        // Find the user in the database to get their role
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email || "" },
+        });
+
+        // If user exists in DB, use their role, otherwise default to 'user'
+        token.role = dbUser?.role || "user";
+        token.id = dbUser?.id.toString() || "";
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.id = token.id as string;
       }
       return session;
     },
@@ -120,10 +74,9 @@ export const authOptions: NextAuthOptions = {
     error: "/admin/login", // Error code passed in query string as ?error=
   },
   session: {
-    strategy: "jwt" as const,
+    strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  debug: process.env.NODE_ENV === "development",
   secret: NEXTAUTH_SECRET,
 };
 

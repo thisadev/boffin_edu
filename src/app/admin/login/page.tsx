@@ -7,8 +7,6 @@ import { signIn } from "next-auth/react";
 
 export default function AdminLogin() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -49,46 +47,6 @@ export default function AdminLogin() {
     }
   }, [router]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-
-    try {
-      console.log("Attempting to log in with", email);
-      
-      // Use our custom login API instead of NextAuth's signIn
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-          "Pragma": "no-cache"
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      
-      const data = await response.json();
-      console.log("Login response:", data);
-      
-      if (!response.ok) {
-        setError(data.error || "Invalid email or password");
-        setIsLoading(false);
-      } else {
-        // Successful login
-        console.log("Login successful, redirecting to dashboard");
-        setIsAuthenticated(true);
-        
-        // Use window.location for a hard redirect to avoid any caching issues
-        window.location.href = "/admin/dashboard";
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setError("An error occurred during login");
-      setIsLoading(false);
-    }
-  };
-
   const handleGoogleLogin = () => {
     setIsLoading(true);
     signIn("google", { callbackUrl: "/admin/dashboard" });
@@ -123,7 +81,7 @@ export default function AdminLogin() {
             Admin Login
           </h2>
           <p className="mt-2 text-center text-sm text-boffin-background/70">
-            Sign in to access the admin dashboard
+            Sign in with your Boffin Institute Google account
           </p>
         </div>
         
@@ -135,10 +93,11 @@ export default function AdminLogin() {
         )}
         
         {/* Google login button */}
-        <div>
+        <div className="mt-8">
           <button
             onClick={handleGoogleLogin}
-            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            disabled={isLoading}
+            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-blue-400 disabled:cursor-not-allowed"
           >
             <span className="flex items-center">
               <svg className="h-5 w-5 mr-2" viewBox="0 0 24 24">
@@ -159,70 +118,14 @@ export default function AdminLogin() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Sign in with Google
+              {isLoading ? "Signing in..." : "Sign in with Google"}
             </span>
           </button>
         </div>
         
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500">Or continue with email</span>
-            </div>
-          </div>
+        <div className="mt-6 text-center text-sm text-gray-500">
+          <p>Only accounts with @boffin.lk domain can sign in</p>
         </div>
-        
-        {/* Email/password form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <input type="hidden" name="remember" value="true" />
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-boffin-primary focus:border-boffin-primary focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-boffin-primary focus:border-boffin-primary focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-boffin-background hover:bg-boffin-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-boffin-primary"
-            >
-              {isLoading ? "Signing in..." : "Sign in with Email"}
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );
