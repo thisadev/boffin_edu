@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { signIn } from "next-auth/react";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -17,6 +18,11 @@ export default function AdminLogin() {
     // Check if we have a signedOut or forcedSignout parameter in the URL
     const urlParams = new URLSearchParams(window.location.search);
     const signedOut = urlParams.get('signedOut') || urlParams.get('forcedSignout');
+    const errorParam = urlParams.get('error');
+    
+    if (errorParam) {
+      setError("An authentication error occurred. Please try again.");
+    }
     
     // If we just signed out, don't redirect back to dashboard and clear any remaining auth data
     if (signedOut) {
@@ -38,30 +44,33 @@ export default function AdminLogin() {
       return;
     }
     
-    const checkSession = async () => {
-      try {
-        // Add a cache-busting parameter to prevent cached responses
-        const res = await fetch(`/api/auth/session?t=${Date.now()}`, {
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
+    // Only check session if we're not in a sign-out flow
+    if (!signedOut) {
+      const checkSession = async () => {
+        try {
+          // Add a cache-busting parameter to prevent cached responses
+          const res = await fetch(`/api/auth/session?t=${Date.now()}`, {
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            }
+          });
+          const session = await res.json();
+          console.log("Session check:", session);
+          
+          if (session && session.user) {
+            console.log("User is authenticated, redirecting to dashboard");
+            setIsAuthenticated(true);
+            router.push("/admin/dashboard");
           }
-        });
-        const session = await res.json();
-        console.log("Session check:", session);
-        
-        if (session && session.user) {
-          console.log("User is authenticated, redirecting to dashboard");
-          setIsAuthenticated(true);
-          router.push("/admin/dashboard");
+        } catch (error) {
+          console.error("Error checking session:", error);
         }
-      } catch (error) {
-        console.error("Error checking session:", error);
-      }
-    };
-    
-    checkSession();
+      };
+      
+      checkSession();
+    }
   }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,64 +81,29 @@ export default function AdminLogin() {
     try {
       console.log("Attempting to log in with", email);
       
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      // Use NextAuth's signIn function directly
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
       });
       
-      const data = await response.json();
-      console.log("Login response:", data);
+      console.log("Login result:", result);
       
-      if (!response.ok) {
-        setError(data.error || "Invalid email or password");
+      if (result?.error) {
+        setError(result.error || "Invalid email or password");
         setIsLoading(false);
       } else {
         // Successful login
         console.log("Login successful, redirecting to dashboard");
         setIsAuthenticated(true);
-        router.push("/admin/dashboard");
+        
+        // Use window.location for a hard redirect to avoid any caching issues
+        window.location.href = "/admin/dashboard";
       }
     } catch (error) {
       console.error("Login error:", error);
       setError("An error occurred during login");
-      setIsLoading(false);
-    }
-  };
-
-  // For testing purposes, add a direct login button
-  const handleDirectLogin = async () => {
-    setIsLoading(true);
-    try {
-      console.log("Attempting direct login with hardcoded credentials");
-      
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          email: "admin@boffininstitute.com", 
-          password: "admin123" 
-        }),
-      });
-      
-      const data = await response.json();
-      console.log("Direct login response:", data);
-      
-      if (response.ok) {
-        console.log("Direct login successful, redirecting to dashboard");
-        setIsAuthenticated(true);
-        router.push("/admin/dashboard");
-      } else {
-        setError(data.error || "Direct login failed");
-        setIsLoading(false);
-      }
-    } catch (error) {
-      console.error("Direct login error:", error);
-      setError("An error occurred during direct login");
       setIsLoading(false);
     }
   };
@@ -216,41 +190,22 @@ export default function AdminLogin() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-boffin-primary hover:bg-boffin-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-boffin-primary"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-boffin-background hover:bg-boffin-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-boffin-primary transition-colors duration-200"
             >
               {isLoading ? (
-                <>
-                  <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  </span>
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                   Signing in...
-                </>
+                </span>
               ) : (
-                <>
-                  <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                    <svg className="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                    </svg>
-                  </span>
-                  Sign in
-                </>
+                "Sign in"
               )}
             </button>
           </div>
         </form>
-        
-        {/* Development-only direct login button */}
-        <div className="mt-6">
-          <button
-            onClick={handleDirectLogin}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
-            Quick Login (Dev Only)
-          </button>
-        </div>
       </div>
     </div>
   );
