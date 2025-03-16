@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { signIn } from "next-auth/react";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -81,17 +80,22 @@ export default function AdminLogin() {
     try {
       console.log("Attempting to log in with", email);
       
-      // Use NextAuth's signIn function directly
-      const result = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
+      // Use our custom login API instead of NextAuth's signIn
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache"
+        },
+        body: JSON.stringify({ email, password }),
       });
       
-      console.log("Login result:", result);
+      const data = await response.json();
+      console.log("Login response:", data);
       
-      if (result?.error) {
-        setError(result.error || "Invalid email or password");
+      if (!response.ok) {
+        setError(data.error || "Invalid email or password");
         setIsLoading(false);
       } else {
         // Successful login

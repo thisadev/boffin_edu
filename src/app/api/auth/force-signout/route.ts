@@ -9,6 +9,7 @@ export async function GET(request: Request) {
   
   // List of all possible auth-related cookies
   const cookiesToClear = [
+    // NextAuth cookies
     "next-auth.session-token",
     "next-auth.csrf-token",
     "next-auth.callback-url",
@@ -18,10 +19,15 @@ export async function GET(request: Request) {
     "__Host-next-auth.csrf-token",
     "__Secure-next-auth.callback-url",
     "__Host-next-auth.callback-url",
-    // Add any other possible cookies
     "next-auth.session-token.0",
     "next-auth.session-token.1",
-    "next-auth.pkce.code_verifier"
+    "next-auth.pkce.code_verifier",
+    
+    // Custom cookies we might have set
+    "admin-session",
+    "user-session",
+    "auth-token",
+    "session-id"
   ];
   
   // Clear all auth cookies by setting them to empty with past expiration
