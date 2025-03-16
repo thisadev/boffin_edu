@@ -91,6 +91,10 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  // Add JWT configuration to ensure consistent encryption
+  jwt: {
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+  },
 };
 
 // Add type declarations to extend the default NextAuth types
