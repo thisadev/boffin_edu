@@ -2,6 +2,8 @@
 
 Modern, scalable website for Boffin Institute of Data Science (www.boffin.edu.lk) featuring course catalog, student registration system, and payment processing.
 
+## Latest Deployment: March 17, 2025
+
 ## Project Setup Documentation
 
 This document outlines the complete setup process for the Boffin Institute website project, including all terminal commands used.
