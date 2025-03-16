@@ -81,11 +81,15 @@ export default function AdminDashboardLayout({
     try {
       console.log("Signing out...");
       
-      // Use the signOut function from next-auth/react but handle the redirection manually
-      await signOut({ redirect: false });
+      // For Vercel deployment, we need to ensure the full URL is used
+      // This approach works more reliably across different environments
+      const baseUrl = window.location.origin;
+      const signOutUrl = `${baseUrl}/api/auth/signout`;
       
-      // After signOut completes, manually navigate to the login page
-      window.location.href = '/admin/login';
+      console.log("Redirecting to sign out URL:", signOutUrl);
+      
+      // Direct browser navigation to the sign-out URL with callbackUrl parameter
+      window.location.href = `${signOutUrl}?callbackUrl=${encodeURIComponent(`${baseUrl}/admin/login`)}`;
     } catch (error) {
       console.error("Sign out error:", error);
       // Fallback: still try to redirect
