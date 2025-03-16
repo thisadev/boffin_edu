@@ -254,6 +254,8 @@ async function main() {
         firstName: 'Admin',
         lastName: 'User',
         role: 'admin',
+        image: null,
+        emailVerified: null,
       },
     });
     console.log(`Created admin user: ${adminUser.email}`);
