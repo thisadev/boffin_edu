@@ -80,11 +80,16 @@ export default function AdminDashboardLayout({
   const handleSignOut = async () => {
     try {
       console.log("Signing out...");
+      
+      // Use the signOut function from next-auth/react but handle the redirection manually
       await signOut({ redirect: false });
-      console.log("Signed out, redirecting to login");
-      router.push("/admin/login");
+      
+      // After signOut completes, manually navigate to the login page
+      window.location.href = '/admin/login';
     } catch (error) {
       console.error("Sign out error:", error);
+      // Fallback: still try to redirect
+      window.location.href = '/admin/login';
     }
   };
 

@@ -3,7 +3,7 @@
 // Load environment variables with fallbacks
 export const ENV = {
   // NextAuth configuration
-  NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://localhost:3002',
+  NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://localhost:3001',
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || 'bH79Dube7yGAm92VYRSS/Y5QUeX6JVeboDxv1M44x/g=',
   
   // Vercel Blob configuration
