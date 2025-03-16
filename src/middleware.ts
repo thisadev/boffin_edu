@@ -1,60 +1,42 @@
-import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
+import { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
+  const { pathname } = request.nextUrl;
   
-  // Define public paths that don't require authentication
-  const isPublicPath = path === "/admin/login" || path.startsWith("/api/auth/");
-  
-  // Define admin paths that require authentication
-  const isAdminPath = path.startsWith("/admin") && !isPublicPath;
-
-  // Add cache control headers to all responses
-  const response = NextResponse.next();
-  response.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-  response.headers.set("Pragma", "no-cache");
-  response.headers.set("Expires", "0");
-  
-  // For API routes, let them handle their own authentication
-  if (path.startsWith("/api/")) {
-    return response;
-  }
-  
-  try {
-    // For protected admin routes
-    if (isAdminPath) {
-      // Check for session cookies from NextAuth
-      const sessionCookie = request.cookies.get("next-auth.session-token");
-      const jwtCookie = request.cookies.get("__Secure-next-auth.session-token") || 
-                       request.cookies.get("__Host-next-auth.session-token");
-                       
-      const isAuthenticated = !!sessionCookie || !!jwtCookie;
-      
-      console.log(`Middleware: Path=${path}, Authenticated=${isAuthenticated}`);
-      
-      if (!isAuthenticated) {
-        console.log("Middleware: Not authenticated, redirecting to login");
-        // Redirect to login page
-        const loginUrl = new URL("/admin/login", request.url);
-        
-        const redirectResponse = NextResponse.redirect(loginUrl);
-        // Copy the cache headers
-        redirectResponse.headers.set("Cache-Control", "no-store, no-cache, must-revalidate");
-        redirectResponse.headers.set("Pragma", "no-cache");
-        redirectResponse.headers.set("Expires", "0");
-        
-        return redirectResponse;
-      }
+  // Check if the request is for the admin section
+  if (pathname.startsWith('/admin')) {
+    // Skip middleware for API routes and auth routes
+    if (pathname.startsWith('/admin/api') || pathname.includes('/api/auth')) {
+      return NextResponse.next();
     }
-  } catch (error) {
-    console.error("Middleware error:", error);
+
+    // Get the token
+    const token = await getToken({ 
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET || "boffin-institute-secret-key-2025",
+    });
+
+    // If it's the login page and user is authenticated, redirect to dashboard
+    if (pathname === '/admin/login' && token) {
+      const url = new URL('/admin/dashboard', request.url);
+      return NextResponse.redirect(url);
+    }
+
+    // If it's not the login page and user is not authenticated, redirect to login
+    if (pathname !== '/admin/login' && !token) {
+      const url = new URL('/admin/login', request.url);
+      return NextResponse.redirect(url);
+    }
   }
 
-  return response;
+  return NextResponse.next();
 }
 
-// Configure which paths should use this middleware
+// See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/admin/:path*", "/api/auth/:path*"],
+  matcher: [
+    '/admin/:path*',
+  ],
 };

@@ -1,34 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { signIn, useSession } from "next-auth/react";
 
 export default function AdminLogin() {
-  const router = useRouter();
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [redirectAttempted, setRedirectAttempted] = useState(false);
 
+  // Force navigation to dashboard when authenticated
   useEffect(() => {
-    // Only attempt redirect once to prevent loops
-    if (status === "authenticated" && session && !redirectAttempted) {
+    if (status === "authenticated" && session) {
       console.log("User is authenticated, redirecting to dashboard");
-      setRedirectAttempted(true);
-      // Use window.location for a hard redirect
-      window.location.replace("/admin/dashboard");
+      // Force a hard navigation to the dashboard
+      window.location.href = "/admin/dashboard";
     }
-  }, [session, status, redirectAttempted]);
+  }, [session, status]);
 
   const handleGoogleLogin = () => {
     setIsLoading(true);
     signIn("google", { callbackUrl: "/admin/dashboard" });
-  };
-
-  const goToDashboard = () => {
-    window.location.replace("/admin/dashboard");
   };
 
   // Show loading state while checking session
@@ -51,12 +43,12 @@ export default function AdminLogin() {
           <h2 className="text-2xl font-semibold text-gray-800">Already authenticated</h2>
           <p className="mt-2 text-gray-600">You're already signed in.</p>
           <div className="mt-4">
-            <button 
-              onClick={goToDashboard}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            <a 
+              href="/admin/dashboard"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 inline-block"
             >
               Go to Dashboard
-            </button>
+            </a>
           </div>
         </div>
       </div>
