@@ -18,9 +18,23 @@ export default function AdminLogin() {
     const urlParams = new URLSearchParams(window.location.search);
     const signedOut = urlParams.get('signedOut');
     
-    // If we just signed out, don't redirect back to dashboard
+    // If we just signed out, don't redirect back to dashboard and clear any remaining auth data
     if (signedOut) {
-      console.log("User just signed out, staying on login page");
+      console.log("User just signed out, staying on login page and clearing any remaining auth data");
+      
+      // Clear any remaining auth data
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Clear cookies
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
+      }
+      
       return;
     }
     

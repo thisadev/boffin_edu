@@ -10,40 +10,51 @@ export default function SignOutPage() {
   useEffect(() => {
     const performSignOut = async () => {
       try {
-        console.log("SignOutPage: Clearing cookies and storage");
+        console.log("SignOutPage: Starting complete sign-out process");
         
-        // Clear all local storage items
+        // Clear all browser storage
         localStorage.clear();
         sessionStorage.clear();
         
-        // Clear specific NextAuth items
-        localStorage.removeItem("next-auth.session-token");
-        localStorage.removeItem("next-auth.callback-url");
-        localStorage.removeItem("next-auth.csrf-token");
-        sessionStorage.removeItem("next-auth.session-token");
-        sessionStorage.removeItem("next-auth.callback-url");
-        sessionStorage.removeItem("next-auth.csrf-token");
+        // Clear all cookies by setting expiration to past date
+        const cookies = document.cookie.split(";");
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i];
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substring(0, eqPos).trim() : cookie.trim();
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;`;
+        }
         
-        // First call our custom signout endpoint to clear cookies
+        console.log("SignOutPage: Cleared all cookies and storage");
+        
+        // Call our custom sign-out API
         await fetch("/api/auth/custom-signout", {
           method: "POST",
+          cache: "no-store",
           headers: {
-            "Content-Type": "application/json",
-          },
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache"
+          }
         });
         
-        // Then use the NextAuth signOut function
+        console.log("SignOutPage: Called custom sign-out API");
+        
+        // Use NextAuth's signOut function
         await signOut({ redirect: false });
         
-        // Add a small delay to ensure everything is processed
-        setTimeout(() => {
-          // Finally, force a hard redirect to the login page
-          window.location.href = "/admin/login?signedOut=true&t=" + Date.now();
-        }, 500);
+        console.log("SignOutPage: Called NextAuth signOut");
+        
+        // Force a complete page reload to clear any in-memory state
+        // and redirect to login with cache-busting parameter
+        const timestamp = Date.now();
+        console.log("SignOutPage: Redirecting to login with timestamp", timestamp);
+        
+        // Use window.location for a hard redirect that bypasses Next.js router
+        window.location.href = `/admin/login?signedOut=true&t=${timestamp}`;
       } catch (error) {
         console.error("SignOutPage: Error during sign out:", error);
         // Force redirect anyway
-        window.location.href = "/admin/login?signedOut=true&error=true&t=" + Date.now();
+        window.location.href = "/admin/login?signedOut=true&error=true";
       }
     };
     
