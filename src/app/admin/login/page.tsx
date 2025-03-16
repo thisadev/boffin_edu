@@ -16,7 +16,14 @@ export default function AdminLogin() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch("/api/auth/session");
+        // Add a cache-busting parameter to prevent cached responses
+        const res = await fetch(`/api/auth/session?t=${Date.now()}`, {
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
         const session = await res.json();
         console.log("Session check:", session);
         

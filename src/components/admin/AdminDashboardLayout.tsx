@@ -27,7 +27,7 @@ export default function AdminDashboardLayout({
     }
 
     // If not authenticated, redirect to login
-    if (status === "unauthenticated") {
+    if (status === "unauthenticated" || !session) {
       console.log("AdminDashboardLayout - Not authenticated, redirecting to login");
       router.push("/admin/login");
     }
@@ -81,18 +81,22 @@ export default function AdminDashboardLayout({
     try {
       console.log("Signing out...");
       
-      // For Vercel deployment, we need to ensure the full URL is used
-      // This approach works more reliably across different environments
-      const baseUrl = window.location.origin;
-      const signOutUrl = `${baseUrl}/api/auth/signout`;
+      // First, clear any local storage items related to authentication
+      localStorage.removeItem('next-auth.session-token');
+      localStorage.removeItem('next-auth.callback-url');
+      localStorage.removeItem('next-auth.csrf-token');
+      sessionStorage.removeItem('next-auth.session-token');
+      sessionStorage.removeItem('next-auth.callback-url');
+      sessionStorage.removeItem('next-auth.csrf-token');
       
-      console.log("Redirecting to sign out URL:", signOutUrl);
-      
-      // Direct browser navigation to the sign-out URL with callbackUrl parameter
-      window.location.href = `${signOutUrl}?callbackUrl=${encodeURIComponent(`${baseUrl}/admin/login`)}`;
+      // Use signOut with redirect: true and force a page reload
+      await signOut({
+        redirect: true,
+        callbackUrl: '/admin/login'
+      });
     } catch (error) {
       console.error("Sign out error:", error);
-      // Fallback: still try to redirect
+      // Fallback: force redirect to login page
       window.location.href = '/admin/login';
     }
   };
