@@ -16,36 +16,16 @@ export async function middleware(request: NextRequest) {
   response.headers.set("Pragma", "no-cache");
   response.headers.set("Expires", "0");
   
-  // Special case for the force-signout API - always allow it without further checks
-  if (path === "/api/auth/force-signout") {
-    return response;
-  }
-  
-  // For the dashboard page, let client-side code handle authentication
-  if (path === "/admin/dashboard") {
-    return response;
-  }
-  
   // For API routes, let them handle their own authentication
   if (path.startsWith("/api/")) {
     return response;
   }
   
   try {
-    // Check for sign-out related parameters
-    const hasSignOutParam = request.nextUrl.searchParams.has("signedOut") || 
-                           request.nextUrl.searchParams.has("forcedSignout");
-    
-    // If this is the login page with sign-out parameters, don't do further checks
-    if (path === "/admin/login" && hasSignOutParam) {
-      return response;
-    }
-    
-    // For protected admin routes (except dashboard which is handled client-side)
-    if (isAdminPath && path !== "/admin/dashboard") {
-      // Get the session token from the cookies
+    // For protected admin routes
+    if (isAdminPath) {
+      // Check for session cookies from NextAuth
       const sessionCookie = request.cookies.get("next-auth.session-token");
-      // Also check for the JWT token cookie which might be used in production
       const jwtCookie = request.cookies.get("__Secure-next-auth.session-token") || 
                        request.cookies.get("__Host-next-auth.session-token");
                        
@@ -55,10 +35,8 @@ export async function middleware(request: NextRequest) {
       
       if (!isAuthenticated) {
         console.log("Middleware: Not authenticated, redirecting to login");
-        // Add a cache-busting parameter to prevent caching issues
+        // Redirect to login page
         const loginUrl = new URL("/admin/login", request.url);
-        loginUrl.searchParams.set("from", "middleware");
-        loginUrl.searchParams.set("t", Date.now().toString());
         
         const redirectResponse = NextResponse.redirect(loginUrl);
         // Copy the cache headers

@@ -36,15 +36,7 @@ export default function AdminLogin() {
       }
     };
 
-    // Check if we were redirected from sign-out
-    const url = new URL(window.location.href);
-    const forcedSignout = url.searchParams.get("forcedSignout");
-    
-    if (!forcedSignout) {
-      checkAuth();
-    } else {
-      console.log("User was signed out");
-    }
+    checkAuth();
   }, [router]);
 
   const handleGoogleLogin = () => {
