@@ -122,24 +122,40 @@ export const authOptions: NextAuthOptions = {
     },
     async jwt({ token, user }) {
       if (user) {
-        // Find the user in the database to get the correct ID and role
-        const dbUser = await prisma.user.findUnique({
-          where: { email: user.email || token.email as string }
-        });
-        
-        if (dbUser) {
-          // Store the ID as a string but ensure it's properly formatted for conversion later
-          token.id = dbUser.id.toString();
-          token.role = dbUser.role;
+        try {
+          // Find the user in the database to get the correct ID and role
+          const dbUser = await prisma.user.findUnique({
+            where: { email: user.email || token.email as string }
+          });
+          
+          if (dbUser) {
+            // Store the ID as a string but ensure it's properly formatted for conversion later
+            token.id = dbUser.id.toString();
+            token.role = dbUser.role;
+            console.log('JWT callback: User found in database, ID set to:', token.id);
+          } else {
+            console.log('JWT callback: User not found in database for email:', user.email || token.email);
+          }
+        } catch (error) {
+          console.error('JWT callback error:', error);
         }
+      } else {
+        console.log('JWT callback: No user object provided, using existing token');
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        // Store the ID as a string in the session
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        try {
+          // Store the ID as a string in the session
+          session.user.id = token.id as string;
+          session.user.role = token.role as string;
+          console.log('Session callback: User ID set to:', session.user.id);
+        } catch (error) {
+          console.error('Session callback error:', error);
+        }
+      } else {
+        console.log('Session callback: No token or session.user available');
       }
       return session;
     },
