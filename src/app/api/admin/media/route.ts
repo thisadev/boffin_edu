@@ -126,6 +126,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Convert user ID from string to integer
+    const uploadedById = parseInt(session.user.id, 10);
+    
+    if (isNaN(uploadedById)) {
+      return NextResponse.json({ error: 'Invalid user ID' }, { status: 400 });
+    }
+
     // Create media asset record in database
     const mediaAsset = await prisma.mediaAsset.create({
       data: {
@@ -141,7 +148,7 @@ export async function POST(request: NextRequest) {
         altText,
         width,
         height,
-        uploadedById: session.user.id,
+        uploadedById, // Now using the parsed integer
       },
     });
 
