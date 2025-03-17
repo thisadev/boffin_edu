@@ -3,13 +3,10 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 
-export default function AdminDashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+// Component that safely uses usePathname inside Suspense
+function AdminDashboardContent() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
@@ -23,7 +20,7 @@ export default function AdminDashboardLayout({
 
   // Skip the layout for the login page
   if (pathname === "/admin/login") {
-    return <>{children}</>;
+    return null; // We'll handle children in the main component
   }
 
   // Show loading state while checking authentication
@@ -36,7 +33,7 @@ export default function AdminDashboardLayout({
   }
 
   // Redirect to login if not authenticated
-  if (status === "unauthenticated") {
+  if (status !== "authenticated") {
     if (isClient) {
       router.push("/admin/login");
     }
@@ -216,11 +213,52 @@ export default function AdminDashboardLayout({
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
           <div className="py-6">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-              {children}
+              {/* Children will be passed from the main component */}
             </div>
           </div>
         </main>
       </div>
     </div>
+  );
+}
+
+// Loading fallback for Suspense
+function AdminDashboardLoading() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  );
+}
+
+// Main component that wraps AdminDashboardContent with Suspense
+export default function AdminDashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // Check if we're on the login page without using usePathname
+  // We'll use a client-side effect to determine this
+  const [isLoginPage, setIsLoginPage] = useState(false);
+  
+  useEffect(() => {
+    // Check if we're on the login page
+    if (typeof window !== 'undefined') {
+      setIsLoginPage(window.location.pathname === '/admin/login');
+    }
+  }, []);
+  
+  // If we're on the login page, just render children
+  if (isLoginPage) {
+    return <>{children}</>;
+  }
+  
+  return (
+    <Suspense fallback={<AdminDashboardLoading />}>
+      <AdminDashboardContent />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6">
+        {children}
+      </div>
+    </Suspense>
   );
 }
