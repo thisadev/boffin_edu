@@ -14,6 +14,12 @@ export default function AdminDashboardLayout({
   const router = useRouter();
   const { data: session, status } = useSession({ required: true });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isClient, setIsClient] = useState(false);
+
+  // Set isClient to true when component mounts (client-side only)
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   // Skip the layout for the login page
   if (pathname === "/admin/login") {
@@ -21,7 +27,7 @@ export default function AdminDashboardLayout({
   }
 
   // Show loading state while checking authentication
-  if (status === "loading") {
+  if (status === "loading" || !isClient) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -31,7 +37,9 @@ export default function AdminDashboardLayout({
 
   // Redirect to login if not authenticated
   if (status === "unauthenticated") {
-    router.push("/admin/login");
+    if (isClient) {
+      router.push("/admin/login");
+    }
     return null;
   }
 
@@ -43,114 +51,176 @@ export default function AdminDashboardLayout({
     { name: "Instructors", href: "/admin/instructors", icon: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" },
     { name: "Testimonials", href: "/admin/testimonials", icon: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" },
     { name: "Media", href: "/admin/media", icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" },
-    { name: "Coupons", href: "/admin/coupons", icon: "M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" },
+    { name: "Settings", href: "/admin/settings", icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" },
   ];
 
-  // Handle sign out
   const handleSignOut = async () => {
-    try {
-      await signOut({ redirect: false });
-      window.location.href = "/admin/login";
-    } catch (error) {
-      console.error("Error signing out:", error);
-      // Fallback to the force-signout API if client-side signOut fails
-      window.location.href = "/api/auth/force-signout";
-    }
+    await signOut({ callbackUrl: "/admin/login" });
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {/* Mobile sidebar toggle */}
-      <div className="lg:hidden fixed top-0 left-0 z-20 p-4">
-        <button
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-        >
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            {isSidebarOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            )}
-          </svg>
-        </button>
-      </div>
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed inset-y-0 left-0 z-10 w-64 bg-boffin-background transition duration-300 transform ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:relative lg:flex-shrink-0`}
+    <div className="h-screen flex overflow-hidden bg-gray-100">
+      {/* Sidebar for larger screens */}
+      <div
+        className={`${isSidebarOpen ? "block" : "hidden"} md:block md:flex-shrink-0`}
       >
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-center h-16 bg-boffin-background border-b border-boffin-background/30 text-boffin-primary font-bold text-xl">
-            Boffin Admin
+        <div className="flex flex-col w-64 h-full bg-white border-r border-gray-200">
+          {/* Sidebar header */}
+          <div className="flex items-center justify-between h-16 flex-shrink-0 px-4 border-b border-gray-200">
+            <Link href="/admin/dashboard" className="flex items-center">
+              <img
+                className="h-8 w-auto"
+                src="/images/boffin-logo.png"
+                alt="Boffin Institute"
+              />
+              <span className="ml-2 text-lg font-semibold text-gray-800">
+                Boffin Admin
+              </span>
+            </Link>
+            <button
+              className="md:hidden rounded-md p-2 inline-flex items-center justify-center text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              onClick={() => setIsSidebarOpen(false)}
+            >
+              <span className="sr-only">Close sidebar</span>
+              <svg
+                className="h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
           </div>
-          <div className="flex-1 overflow-y-auto">
-            <nav className="px-2 py-4 space-y-1">
+
+          {/* Sidebar content */}
+          <div className="flex-1 flex flex-col overflow-y-auto">
+            {/* User profile */}
+            <div className="px-4 py-4 border-b border-gray-200">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <img
+                    className="h-10 w-10 rounded-full"
+                    src={session?.user?.image || "/images/default-avatar.png"}
+                    alt="User"
+                  />
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm font-medium text-gray-900">
+                    {session?.user?.name || session?.user?.email?.split("@")[0]}
+                  </p>
+                  <p className="text-xs font-medium text-gray-500">
+                    {session?.user?.email}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Navigation */}
+            <nav className="mt-5 px-2 space-y-1">
               {navigation.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${isActive ? "bg-boffin-background/80 text-boffin-primary" : "text-white hover:bg-boffin-background/50 hover:text-boffin-primary/80"}`}
+                    className={`${isActive
+                      ? "bg-blue-50 text-blue-600"
+                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
                   >
                     <svg
-                      className={`mr-3 h-6 w-6 ${isActive ? "text-boffin-primary" : "text-boffin-cyan"}`}
+                      className={`${isActive ? "text-blue-500" : "text-gray-400 group-hover:text-gray-500"
+                        } mr-3 flex-shrink-0 h-6 w-6`}
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
                       aria-hidden="true"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d={item.icon}
+                      />
                     </svg>
                     {item.name}
                   </Link>
                 );
               })}
             </nav>
-          </div>
-          <div className="p-4 border-t border-boffin-background/30">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                {session?.user?.image ? (
-                  <img 
-                    src={session.user.image} 
-                    alt="User profile" 
-                    className="h-10 w-10 rounded-full"
+
+            {/* Sign out button */}
+            <div className="mt-auto p-4 border-t border-gray-200">
+              <button
+                onClick={handleSignOut}
+                className="w-full flex items-center px-2 py-2 text-sm font-medium text-red-600 rounded-md hover:bg-red-50"
+              >
+                <svg
+                  className="mr-3 flex-shrink-0 h-6 w-6 text-red-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
                   />
-                ) : (
-                  <svg className="h-10 w-10 text-boffin-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                )}
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-white">
-                  {session?.user?.name || session?.user?.email?.split('@')[0] || "Admin"}
-                </p>
-                <p className="text-xs text-boffin-cyan">
-                  {session?.user?.email || ""}
-                </p>
-              </div>
+                </svg>
+                Sign out
+              </button>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="mt-4 w-full flex items-center justify-center px-4 py-2 bg-boffin-primary text-white rounded hover:bg-boffin-primary/90 transition-colors"
-            >
-              <svg className="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              Sign out
-            </button>
           </div>
         </div>
-      </aside>
+      </div>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto p-6">
-        {children}
-      </main>
+      <div className="flex flex-col w-0 flex-1 overflow-hidden">
+        {/* Top bar */}
+        <div className="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3">
+          <button
+            className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            onClick={() => setIsSidebarOpen(true)}
+          >
+            <span className="sr-only">Open sidebar</span>
+            <svg
+              className="h-6 w-6"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Page content */}
+        <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
+          <div className="py-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+              {children}
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
