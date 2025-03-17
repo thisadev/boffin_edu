@@ -169,19 +169,12 @@ export default function CategoriesAdmin() {
       </div>
 
       {isFormVisible && (
-        <div className="mt-6 mb-8 bg-white shadow sm:rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg font-medium leading-6 text-gray-900">
-              {editingCategory ? "Edit Category" : "Add New Category"}
-            </h3>
-            <div className="mt-2 max-w-xl">
-              <CategoryForm
-                category={editingCategory}
-                onSubmit={handleFormSubmit}
-                onCancel={handleFormClose}
-              />
-            </div>
-          </div>
+        <div className="mt-6 mb-8">
+          <CategoryForm
+            category={editingCategory}
+            onSubmit={handleFormSubmit}
+            onCancel={handleFormClose}
+          />
         </div>
       )}
 
