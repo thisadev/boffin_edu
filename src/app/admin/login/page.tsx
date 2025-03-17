@@ -2,9 +2,10 @@
 
 import { signIn, useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 
-export default function AdminLogin() {
+// Component that uses useSearchParams inside Suspense
+function LoginContent() {
   const router = useRouter();
   const { data: session, status } = useSession();
   const searchParams = useSearchParams();
@@ -121,5 +122,23 @@ export default function AdminLogin() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Simple loading component for Suspense fallback
+function LoginLoading() {
+  return (
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  );
+}
+
+// Main component that wraps LoginContent with Suspense
+export default function AdminLogin() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginContent />
+    </Suspense>
   );
 }
