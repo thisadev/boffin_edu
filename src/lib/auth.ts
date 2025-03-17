@@ -1,8 +1,9 @@
-import { NextAuthOptions, DefaultSession } from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import { ENV } from "@/lib/env";
-import GoogleProvider from "next-auth/providers/google";
+import { DefaultSession } from "next-auth";
 
 // Use environment variable for the secret key
 const NEXTAUTH_SECRET = ENV.NEXTAUTH_SECRET;
@@ -50,54 +51,64 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
-        // Only allow sign-ins from your domain for Google provider
         if (account?.provider === "google" && profile?.email) {
           const isAllowedDomain = profile.email.endsWith("@boffin.lk");
           
-          // If domain is allowed, ensure user exists in the database
-          if (isAllowedDomain && user.email) {
+          // If domain is allowed, ensure user exists in database
+          if (isAllowedDomain) {
             // Check if user exists
             let existingUser = await prisma.user.findUnique({
-              where: { email: user.email },
-              include: { accounts: true }
+              where: { email: profile.email },
             });
             
-            // If user doesn't exist, create them
-            if (!existingUser && user.email) {
-              // Extract first and last name from the full name or email
-              const nameParts = user.name ? user.name.split(' ') : [user.email.split('@')[0], ''];
-              const firstName = nameParts[0] || '';
-              const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+            // If user doesn't exist, create a new one
+            if (!existingUser) {
+              // Get name from profile or fallback to email
+              const googleProfile = profile as any; // Type assertion for Google-specific fields
+              const firstName = googleProfile.given_name || user.name?.split(' ')[0] || '';
+              const lastName = googleProfile.family_name || (user.name?.split(' ').slice(1).join(' ') || '');
+              const image = googleProfile.picture || user.image;
               
               existingUser = await prisma.user.create({
                 data: {
-                  email: user.email,
-                  firstName: firstName,
-                  lastName: lastName,
-                  image: user.image,
+                  email: profile.email,
+                  firstName,
+                  lastName,
                   role: "admin", // All boffin.lk users are admins
+                  image,
                 },
-                include: { accounts: true }
               });
-              console.log(`Created new admin user: ${user.email}`);
-            } else if (existingUser && existingUser.accounts.length === 0 && account.provider === 'google') {
-              // If user exists but has no account, create the account link
-              await prisma.account.create({
-                data: {
+              console.log(`Created new admin user: ${profile.email}`);
+            } 
+            // If user exists but doesn't have a linked account, create one
+            else {
+              // Check if account exists
+              const existingAccount = await prisma.account.findFirst({
+                where: {
                   userId: existingUser.id,
-                  type: account.type,
                   provider: account.provider,
-                  providerAccountId: account.providerAccountId,
-                  refresh_token: account.refresh_token,
-                  access_token: account.access_token,
-                  expires_at: account.expires_at,
-                  token_type: account.token_type,
-                  scope: account.scope,
-                  id_token: account.id_token,
-                  session_state: account.session_state
-                }
+                },
               });
-              console.log(`Created account link for existing user: ${user.email}`);
+              
+              // If no account exists, create one
+              if (!existingAccount) {
+                await prisma.account.create({
+                  data: {
+                    userId: existingUser.id,
+                    type: account.type,
+                    provider: account.provider,
+                    providerAccountId: account.providerAccountId,
+                    refresh_token: account.refresh_token,
+                    access_token: account.access_token,
+                    expires_at: account.expires_at,
+                    token_type: account.token_type,
+                    scope: account.scope,
+                    id_token: account.id_token,
+                    session_state: account.session_state
+                  }
+                });
+                console.log(`Created account link for existing user: ${user.email}`);
+              }
             }
           }
           
@@ -117,6 +128,7 @@ export const authOptions: NextAuthOptions = {
         });
         
         if (dbUser) {
+          // Store the ID as a string but ensure it's properly formatted for conversion later
           token.id = dbUser.id.toString();
           token.role = dbUser.role;
         }
@@ -125,6 +137,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (token && session.user) {
+        // Store the ID as a string in the session
         session.user.id = token.id as string;
         session.user.role = token.role as string;
       }

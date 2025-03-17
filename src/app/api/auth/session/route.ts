@@ -12,12 +12,13 @@ export async function GET(request: Request) {
     }
 
     // Return the actual authenticated user from the session
+    // Ensure ID is always a string
     return NextResponse.json({
       user: {
         email: session.user.email,
         name: session.user.name,
         role: session.user.role,
-        id: session.user.id
+        id: session.user.id.toString()
       }
     }, { status: 200 });
   } catch (error) {
