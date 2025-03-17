@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model CourseCategory {
@@ -247,38 +247,38 @@ model User {
   isActive      Boolean        @default(true) @map("is_active")
   createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime       @default(now()) @map("updated_at") @db.Timestamptz(6)
-  image         String?        @db.VarChar(255)
   emailVerified DateTime?      @map("email_verified") @db.Timestamptz(6)
-  reviews       CourseReview[]
-  registrations Registration[]
-  uploadedMedia MediaAsset[]
+  image         String?        @db.VarChar(255)
   accounts      Account[]
+  reviews       CourseReview[]
+  uploadedMedia MediaAsset[]
+  registrations Registration[]
   sessions      Session[]
 
   @@map("users")
 }
 
 model Registration {
-  id                   Int       @id @default(autoincrement())
-  userId               Int       @map("user_id")
-  courseId             Int       @map("course_id")
-  registrationDate     DateTime  @default(now()) @map("registration_date") @db.Timestamptz(6)
-  status               String    @default("pending") @db.VarChar(20)
-  couponId             Int?      @map("coupon_id")
-  finalPrice           Decimal   @map("final_price") @db.Decimal(10, 2)
-  additionalProducts   Json?     @map("additional_products")
-  specialRequirements  String?   @map("special_requirements")
-  categorySpecificData Json?     @map("category_specific_data")
-  educationLevel       String?   @map("education_level") @db.VarChar(100)
-  workExperience       String?   @map("work_experience")
-  hearAboutUs          String?   @map("hear_about_us") @db.VarChar(100)
-  approvedById         Int?      @map("approved_by_id")
-  approvalDate         DateTime? @map("approval_date") @db.Timestamptz(6)
-  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt            DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
-  coupon               Coupon?   @relation(fields: [couponId], references: [id])
-  course               Course    @relation(fields: [courseId], references: [id])
-  user                 User      @relation(fields: [userId], references: [id])
+  id                   Int           @id @default(autoincrement())
+  userId               Int           @map("user_id")
+  courseId             Int           @map("course_id")
+  registrationDate     DateTime      @default(now()) @map("registration_date") @db.Timestamptz(6)
+  status               String        @default("pending") @db.VarChar(20)
+  couponId             Int?          @map("coupon_id")
+  finalPrice           Decimal       @map("final_price") @db.Decimal(10, 2)
+  additionalProducts   Json?         @map("additional_products")
+  specialRequirements  String?       @map("special_requirements")
+  categorySpecificData Json?         @map("category_specific_data")
+  educationLevel       String?       @map("education_level") @db.VarChar(100)
+  workExperience       String?       @map("work_experience")
+  hearAboutUs          String?       @map("hear_about_us") @db.VarChar(100)
+  approvedById         Int?          @map("approved_by_id")
+  approvalDate         DateTime?     @map("approval_date") @db.Timestamptz(6)
+  createdAt            DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime      @default(now()) @map("updated_at") @db.Timestamptz(6)
+  coupon               Coupon?       @relation(fields: [couponId], references: [id])
+  course               Course        @relation(fields: [courseId], references: [id])
+  user                 User          @relation(fields: [userId], references: [id])
   testimonials         Testimonial[]
 
   @@map("registrations")
@@ -297,80 +297,58 @@ model Testimonial {
   isFeatured      Boolean      @default(false) @map("is_featured")
   createdAt       DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
-  
   registration    Registration @relation(fields: [registrationId], references: [id])
 
   @@map("testimonials")
 }
 
-enum MediaType {
-  IMAGE
-  VIDEO
-  DOCUMENT
-  AUDIO
-}
-
-enum PlaceholderType {
-  LOGO
-  FAVICON
-  FULL_LOGO
-  PARTNERSHIP_LOGO
-  ACCREDITATION_LOGO
-  COURSE_LOGO
-  COURSE_IMAGE
-  TESTIMONIAL_IMAGE
-  PROMO_VIDEO
-  HERO_BACKGROUND
-  OTHER
-}
-
 model MediaAsset {
-  id                String                     @id @default(uuid())
-  fileName          String                     @map("file_name") @db.VarChar(255)
-  originalFileName  String                     @map("original_file_name") @db.VarChar(255)
-  fileSize          Int
-  mediaType         MediaType                  @map("media_type")
-  mimeType          String                     @map("mime_type") @db.VarChar(100)
-  storagePath       String                     @map("storage_path") @db.VarChar(500)
-  publicUrl         String                     @map("public_url") @db.VarChar(500)
-  altText           String?                    @map("alt_text") @db.VarChar(255)
-  title             String?                    @db.VarChar(255)
-  description       String?
-  width             Int?
-  height            Int?
-  duration          Int?
-  uploadedById      Int                        @map("uploaded_by_id")
-  createdAt         DateTime                   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime                   @default(now()) @map("updated_at") @db.Timestamptz(6)
-  uploadedBy        User                       @relation(fields: [uploadedById], references: [id])
-  placeholders      MediaPlaceholderAssignment[]
+  id               String                       @id @default(uuid())
+  fileName         String                       @map("file_name") @db.VarChar(255)
+  originalFileName String                       @map("original_file_name") @db.VarChar(255)
+  mediaType        MediaType                    @map("media_type")
+  mimeType         String                       @map("mime_type") @db.VarChar(100)
+  storagePath      String                       @map("storage_path") @db.VarChar(500)
+  publicUrl        String                       @map("public_url") @db.VarChar(500)
+  altText          String?                      @map("alt_text") @db.VarChar(255)
+  title            String?                      @db.VarChar(255)
+  description      String?
+  width            Int?
+  height           Int?
+  duration         Int?
+  uploadedById     Int                          @map("uploaded_by_id")
+  createdAt        DateTime                     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime                     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  fileSize         Int
+  uploadedBy       User                         @relation(fields: [uploadedById], references: [id])
+  placeholders     MediaPlaceholderAssignment[]
 
   @@map("media_assets")
 }
 
 model MediaPlaceholder {
-  id               Int                         @id @default(autoincrement())
-  name             String                      @db.VarChar(100)
-  description      String?
-  placeholderType  PlaceholderType             @map("placeholder_type")
-  context          String?                     @db.VarChar(100)
-  contextId        String?                     @map("context_id")
-  createdAt        DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime                    @default(now()) @map("updated_at") @db.Timestamptz(6)
-  mediaAssets      MediaPlaceholderAssignment[]
+  id              Int                          @id @default(autoincrement())
+  name            String                       @db.VarChar(100)
+  description     String?
+  placeholderType PlaceholderType              @map("placeholder_type")
+  context         String?                      @db.VarChar(100)
+  contextId       String?                      @map("context_id")
+  createdAt       DateTime                     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime                     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  mediaAssets     MediaPlaceholderAssignment[]
 
   @@map("media_placeholders")
 }
 
 model MediaPlaceholderAssignment {
-  placeholderId  Int              @map("placeholder_id")
-  mediaAssetId   String           @map("media_asset_id")
-  isActive       Boolean          @default(true) @map("is_active")
-  orderIndex     Int              @default(0) @map("order_index")
-  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
-  placeholder    MediaPlaceholder  @relation(fields: [placeholderId], references: [id], onDelete: Cascade)
-  mediaAsset     MediaAsset       @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+  placeholderId Int              @map("placeholder_id")
+  mediaAssetId  String           @map("media_asset_id")
+  isActive      Boolean          @default(true) @map("is_active")
+  orderIndex    Int              @default(0) @map("order_index")
+  createdAt     DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+  mediaAsset    MediaAsset       @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+  placeholder   MediaPlaceholder @relation(fields: [placeholderId], references: [id], onDelete: Cascade)
 
   @@id([placeholderId, mediaAssetId])
   @@map("media_placeholder_assignments")
@@ -382,15 +360,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String  @map("provider_account_id")
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -413,4 +390,25 @@ model VerificationToken {
 
   @@unique([identifier, token])
   @@map("verification_tokens")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
+}
+
+enum PlaceholderType {
+  LOGO
+  FAVICON
+  FULL_LOGO
+  PARTNERSHIP_LOGO
+  ACCREDITATION_LOGO
+  COURSE_LOGO
+  COURSE_IMAGE
+  TESTIMONIAL_IMAGE
+  PROMO_VIDEO
+  HERO_BACKGROUND
+  OTHER
 }

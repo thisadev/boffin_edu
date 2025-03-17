@@ -4,7 +4,7 @@
   "description": "Modern, scalable website for Boffin Institute of Data Science",
   "main": "index.js",
   "scripts": {
-    "dev": "next dev",
+    "dev": "BROWSER='/Applications/Brave Browser.app/Contents/MacOS/Brave Browser' next dev",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
