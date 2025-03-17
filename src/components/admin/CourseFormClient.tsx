@@ -201,7 +201,7 @@ export default function CourseFormClient({ courseId }: CourseFormClientProps) {
         <div className="mt-4 bg-red-50 border-l-4 border-red-400 p-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                 <path
                   fillRule="evenodd"
                   d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -210,92 +210,83 @@ export default function CourseFormClient({ courseId }: CourseFormClientProps) {
               </svg>
             </div>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error</h3>
-              <div className="mt-2 text-sm text-red-700">{error}</div>
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           </div>
         </div>
       )}
 
-      <div className="mt-6">
-        <div className="border-b border-gray-200">
-          <nav className="-mb-px flex space-x-8">
+      <div className="mt-6 bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="bg-gray-50 border-b border-gray-200">
+          <nav className="-mb-px flex space-x-6 px-6 py-3" aria-label="Tabs">
             <button
               onClick={() => setActiveTab("basic")}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`${
                 activeTab === "basic"
                   ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+                  : "border-transparent text-gray-700 hover:text-gray-800 hover:border-gray-300"
+              } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm`}
             >
               Basic Information
             </button>
             <button
               onClick={() => setActiveTab("details")}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`${
                 activeTab === "details"
                   ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+                  : "border-transparent text-gray-700 hover:text-gray-800 hover:border-gray-300"
+              } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm`}
             >
               Course Details
             </button>
             <button
               onClick={() => setActiveTab("pricing")}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`${
                 activeTab === "pricing"
                   ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+                  : "border-transparent text-gray-700 hover:text-gray-800 hover:border-gray-300"
+              } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm`}
             >
               Pricing
             </button>
             <button
               onClick={() => setActiveTab("modules")}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+              className={`${
                 activeTab === "modules"
                   ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
+                  : "border-transparent text-gray-700 hover:text-gray-800 hover:border-gray-300"
+              } whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm`}
             >
-              Modules & Lessons
+              Modules
             </button>
           </nav>
         </div>
-      </div>
 
-      <div className="bg-white p-6 rounded-lg shadow mt-6">
-        {activeTab === "basic" && (
-          <CourseBasicInfo
-            courseData={courseData}
-            onChange={handleInputChange}
-            onArrayChange={handleArrayInputChange}
-            onAddArrayItem={handleAddArrayItem}
-            onRemoveArrayItem={handleRemoveArrayItem}
-            categories={categories}
-          />
-        )}
-        {activeTab === "details" && (
-          <CourseDetails
-            courseData={courseData}
-            onChange={handleInputChange}
-            onArrayChange={handleArrayInputChange}
-            onAddArrayItem={handleAddArrayItem}
-            onRemoveArrayItem={handleRemoveArrayItem}
-          />
-        )}
-        {activeTab === "pricing" && (
-          <CoursePricing
-            courseData={courseData}
-            onChange={handleInputChange}
-          />
-        )}
-        {activeTab === "modules" && (
-          <CourseModules
-            courseData={courseData}
-            onChange={setCourseData}
-          />
-        )}
+        <div className="p-6">
+          {activeTab === "basic" && (
+            <CourseBasicInfo
+              courseData={courseData}
+              categories={categories}
+              handleInputChange={handleInputChange}
+              handleArrayInputChange={handleArrayInputChange}
+              handleAddArrayItem={handleAddArrayItem}
+              handleRemoveArrayItem={handleRemoveArrayItem}
+            />
+          )}
+          {activeTab === "details" && (
+            <CourseDetails
+              courseData={courseData}
+              handleInputChange={handleInputChange}
+              handleArrayInputChange={handleArrayInputChange}
+              handleAddArrayItem={handleAddArrayItem}
+              handleRemoveArrayItem={handleRemoveArrayItem}
+            />
+          )}
+          {activeTab === "pricing" && (
+            <CoursePricing courseData={courseData} handleInputChange={handleInputChange} />
+          )}
+          {activeTab === "modules" && <CourseModules courseData={courseData} setCourseData={setCourseData} />}
+        </div>
       </div>
     </div>
   );
