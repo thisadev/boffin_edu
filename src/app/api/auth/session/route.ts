@@ -1,33 +1,23 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(request: Request) {
   try {
-    // Get the session token from cookies
-    const cookieHeader = request.headers.get("cookie");
-    if (!cookieHeader) {
-      return NextResponse.json({ user: null }, { status: 200 });
-    }
-
-    // Parse cookies to find the session token
-    const cookies = cookieHeader.split(";").reduce((acc, cookie) => {
-      const [key, value] = cookie.trim().split("=");
-      acc[key] = value;
-      return acc;
-    }, {} as Record<string, string>);
-
-    const token = cookies["next-auth.session-token"];
+    // Get the actual session using getServerSession
+    const session = await getServerSession(authOptions);
     
-    if (!token) {
+    if (!session || !session.user) {
       return NextResponse.json({ user: null }, { status: 200 });
     }
 
-    // Since we can't verify the token in the Edge runtime,
-    // we'll return a simplified user object based on the presence of the token
+    // Return the actual authenticated user from the session
     return NextResponse.json({
       user: {
-        email: "admin@boffininstitute.com",
-        name: "Admin User",
-        role: "admin",
+        email: session.user.email,
+        name: session.user.name,
+        role: session.user.role,
+        id: session.user.id
       }
     }, { status: 200 });
   } catch (error) {

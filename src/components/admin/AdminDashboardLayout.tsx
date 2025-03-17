@@ -12,7 +12,7 @@ export default function AdminDashboardLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession({ required: true });
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Skip the layout for the login page
@@ -27,6 +27,12 @@ export default function AdminDashboardLayout({
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
+  }
+
+  // Redirect to login if not authenticated
+  if (status === "unauthenticated") {
+    router.push("/admin/login");
+    return null;
   }
 
   const navigation = [
@@ -107,13 +113,25 @@ export default function AdminDashboardLayout({
           <div className="p-4 border-t border-boffin-background/30">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-10 w-10 text-boffin-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                {session?.user?.image ? (
+                  <img 
+                    src={session.user.image} 
+                    alt="User profile" 
+                    className="h-10 w-10 rounded-full"
+                  />
+                ) : (
+                  <svg className="h-10 w-10 text-boffin-cyan" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                )}
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-white">{session?.user?.name || "Admin"}</p>
-                <p className="text-xs text-boffin-cyan">{session?.user?.email}</p>
+                <p className="text-sm font-medium text-white">
+                  {session?.user?.name || session?.user?.email?.split('@')[0] || "Admin"}
+                </p>
+                <p className="text-xs text-boffin-cyan">
+                  {session?.user?.email || ""}
+                </p>
               </div>
             </div>
             <button

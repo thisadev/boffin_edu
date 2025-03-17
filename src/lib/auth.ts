@@ -1,8 +1,8 @@
 import { NextAuthOptions, DefaultSession } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { ENV } from "@/lib/env";
+import GoogleProvider from "next-auth/providers/google";
 
 // Use environment variable for the secret key
 const NEXTAUTH_SECRET = ENV.NEXTAUTH_SECRET;
@@ -10,56 +10,17 @@ const NEXTAUTH_SECRET = ENV.NEXTAUTH_SECRET;
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          console.log("Missing credentials");
-          return null;
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      // Restrict to your company domain
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code",
+          hd: "boffin.lk" // Restrict to boffin.lk domain
         }
-
-        // For development purposes, allow admin login with hardcoded credentials
-        if (
-          credentials.email === "admin@boffininstitute.com" &&
-          credentials.password === "admin123"
-        ) {
-          console.log("Admin login successful with hardcoded credentials");
-          return {
-            id: "admin-id",
-            email: credentials.email,
-            name: "Admin User",
-            role: "admin",
-          };
-        }
-
-        // For regular users, check the database
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
-        });
-
-        if (!user) {
-          console.log("User not found");
-          return null;
-        }
-
-        // Simple password check for development
-        if (user.password === credentials.password) {
-          return {
-            id: String(user.id), // Ensure ID is always a string
-            email: user.email,
-            name: `${user.firstName} ${user.lastName}`,
-            role: user.role,
-          };
-        }
-
-        console.log("Invalid password");
-        return null;
       },
     }),
   ],
@@ -87,20 +48,86 @@ export const authOptions: NextAuthOptions = {
     },
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      try {
+        // Only allow sign-ins from your domain for Google provider
+        if (account?.provider === "google" && profile?.email) {
+          const isAllowedDomain = profile.email.endsWith("@boffin.lk");
+          
+          // If domain is allowed, ensure user exists in the database
+          if (isAllowedDomain && user.email) {
+            // Check if user exists
+            let existingUser = await prisma.user.findUnique({
+              where: { email: user.email },
+              include: { accounts: true }
+            });
+            
+            // If user doesn't exist, create them
+            if (!existingUser && user.email) {
+              // Extract first and last name from the full name or email
+              const nameParts = user.name ? user.name.split(' ') : [user.email.split('@')[0], ''];
+              const firstName = nameParts[0] || '';
+              const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+              
+              existingUser = await prisma.user.create({
+                data: {
+                  email: user.email,
+                  firstName: firstName,
+                  lastName: lastName,
+                  image: user.image,
+                  role: "admin", // All boffin.lk users are admins
+                },
+                include: { accounts: true }
+              });
+              console.log(`Created new admin user: ${user.email}`);
+            } else if (existingUser && existingUser.accounts.length === 0 && account.provider === 'google') {
+              // If user exists but has no account, create the account link
+              await prisma.account.create({
+                data: {
+                  userId: existingUser.id,
+                  type: account.type,
+                  provider: account.provider,
+                  providerAccountId: account.providerAccountId,
+                  refresh_token: account.refresh_token,
+                  access_token: account.access_token,
+                  expires_at: account.expires_at,
+                  token_type: account.token_type,
+                  scope: account.scope,
+                  id_token: account.id_token,
+                  session_state: account.session_state
+                }
+              });
+              console.log(`Created account link for existing user: ${user.email}`);
+            }
+          }
+          
+          return isAllowedDomain;
+        }
+        return false; // Don't allow any other sign-in methods
+      } catch (error) {
+        console.error("Error in signIn callback:", error);
+        return false; // Fail closed for security
+      }
+    },
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
-        token.id = user.id;
+        // Find the user in the database to get the correct ID and role
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email || token.email as string }
+        });
+        
+        if (dbUser) {
+          token.id = dbUser.id.toString();
+          token.role = dbUser.role;
+        }
       }
-      console.log("JWT Callback - Token:", token);
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.role = token.role as string;
+      if (token && session.user) {
         session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
-      console.log("Session Callback - Session:", session);
       return session;
     },
   },
