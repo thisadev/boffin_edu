@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
-import { ENV } from '@/lib/env';
 
+// A simpler middleware that only checks for the presence of the session cookie
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
@@ -17,42 +16,28 @@ export async function middleware(request: NextRequest) {
 
   // Only apply auth redirects to admin routes
   if (pathname.startsWith('/admin')) {
-    try {
-      // Get the token using both environment variable sources
-      // This ensures it works in both development and production
-      const secret = process.env.NEXTAUTH_SECRET || ENV.NEXTAUTH_SECRET;
-      console.log('Middleware: Using secret from:', process.env.NEXTAUTH_SECRET ? 'process.env' : 'ENV');
-      
-      const token = await getToken({ 
-        req: request,
-        secret: secret,
-      });
-      
-      // Add debug header to see if token exists
-      const response = NextResponse.next();
-      response.headers.set('x-debug-has-token', token ? 'yes' : 'no');
-      response.headers.set('x-debug-path', pathname);
-      
-      // If it's the login page and user is authenticated, redirect to dashboard
-      if (pathname === '/admin/login' && token) {
-        console.log('Middleware: Authenticated user on login page, redirecting to dashboard');
-        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-      }
+    // Check for session token in cookies
+    const sessionToken = request.cookies.get('next-auth.session-token') || 
+                         request.cookies.get('__Secure-next-auth.session-token');
+    
+    console.log('Middleware: Checking path:', pathname);
+    console.log('Middleware: Session token exists:', !!sessionToken);
+    
+    // If it's the login page and user is authenticated, redirect to dashboard
+    if (pathname === '/admin/login' && sessionToken) {
+      console.log('Middleware: Authenticated user on login page, redirecting to dashboard');
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+    }
 
-      // If it's not the login page and user is not authenticated, redirect to login
-      if (pathname !== '/admin/login' && !token) {
-        console.log('Middleware: Unauthenticated user on protected page, redirecting to login');
-        return NextResponse.redirect(new URL('/admin/login', request.url));
-      }
-
-      // User is authenticated and accessing a protected page
-      console.log('Middleware: Authenticated user accessing protected page');
-      return response;
-    } catch (error) {
-      console.error('Middleware authentication error:', error);
-      // On error, redirect to login page
+    // If it's not the login page and user is not authenticated, redirect to login
+    if (pathname !== '/admin/login' && !sessionToken) {
+      console.log('Middleware: Unauthenticated user on protected page, redirecting to login');
       return NextResponse.redirect(new URL('/admin/login', request.url));
     }
+
+    // User is authenticated and accessing a protected page
+    console.log('Middleware: Authenticated user accessing protected page');
+    return NextResponse.next();
   }
 
   return NextResponse.next();
