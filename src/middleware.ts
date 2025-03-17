@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { NextRequest } from 'next/server';
+import { ENV } from '@/lib/env';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -17,10 +18,14 @@ export async function middleware(request: NextRequest) {
   // Only apply auth redirects to admin routes
   if (pathname.startsWith('/admin')) {
     try {
-      // Get the token
+      // Get the token using both environment variable sources
+      // This ensures it works in both development and production
+      const secret = process.env.NEXTAUTH_SECRET || ENV.NEXTAUTH_SECRET;
+      console.log('Middleware: Using secret from:', process.env.NEXTAUTH_SECRET ? 'process.env' : 'ENV');
+      
       const token = await getToken({ 
         req: request,
-        secret: process.env.NEXTAUTH_SECRET,
+        secret: secret,
       });
       
       // Add debug header to see if token exists

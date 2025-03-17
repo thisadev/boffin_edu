@@ -6,7 +6,7 @@ import { ENV } from "@/lib/env";
 import { DefaultSession } from "next-auth";
 
 // Use environment variable for the secret key
-const NEXTAUTH_SECRET = ENV.NEXTAUTH_SECRET;
+const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || ENV.NEXTAUTH_SECRET;
 
 export const authOptions: NextAuthOptions = {
   adapter: CustomPrismaAdapter(prisma),
