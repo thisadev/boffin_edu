@@ -23,13 +23,15 @@ export default function ContactInfoFields({ formData, handleChange }: ContactInf
           />
         </div>
         <div>
-          <label htmlFor="phone" className="block text-gray-700 font-medium mb-2">Phone Number</label>
+          <label htmlFor="mobileNumber" className="block text-gray-700 font-medium mb-2">Mobile Number <span className="text-red-500">*</span></label>
           <input
             type="tel"
-            id="phone"
-            name="phone"
-            value={formData.phone}
+            id="mobileNumber"
+            name="mobileNumber"
+            value={formData.mobileNumber || formData.phone} 
             onChange={handleChange}
+            required
+            placeholder="e.g., +94XXXXXXXXX"
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>

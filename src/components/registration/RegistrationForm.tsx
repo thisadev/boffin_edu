@@ -6,270 +6,357 @@ import PersonalInfoFields from './fields/PersonalInfoFields';
 import ContactInfoFields from './fields/ContactInfoFields';
 import AddressFields from './fields/AddressFields';
 import EducationFields from './fields/EducationFields';
+import EmploymentFields from './fields/EmploymentFields';
+import MailingAddressFields from './fields/MailingAddressFields';
 import CourseSelectionFields from './fields/CourseSelectionFields';
 import CategorySpecificFields from './fields/CategorySpecificFields';
 import CourseSpecificFields from './fields/CourseSpecificFields';
 import SuccessMessage from '@/components/ui/SuccessMessage';
 
 export interface RegistrationFormData {
+  // Course Selection (Certification)
+  courseId: string;
+  category: string;
+  
   // Personal Information
   firstName: string;
+  middleName: string;
   lastName: string;
+  dobDay: string;
+  dobMonth: string;
+  dobYear: string;
+  gender: string;
+  nationality: string;
   
   // Contact Information
   email: string;
-  phone: string;
+  mobileNumber: string;
   
-  // Address
+  // Education
+  qualification: string;
+  discipline: string;
+  
+  // Employment
+  employmentStatus: string;
+  employerName: string;
+  workExperienceYears: string;
+  workExperienceMonths: string;
+  programmingExperienceYears: string;
+  programmingExperienceMonths: string;
+  
+  // Billing Address
+  billingAddressLine1: string;
+  billingAddressLine2: string;
+  billingAddressCity: string;
+  billingAddressState: string;
+  billingAddressZipCode: string;
+  billingAddressCountry: string;
+  
+  // Mailing Address
+  sameAsBillingAddress: boolean;
+  mailingAddressLine1: string;
+  mailingAddressLine2: string;
+  mailingAddressCity: string;
+  mailingAddressState: string;
+  mailingAddressZipCode: string;
+  mailingAddressCountry: string;
+  
+  // Additional Information
+  hearAboutUs: string;
+  specialRequirements: string;
+  
+  // Legacy fields for backward compatibility
+  phone: string;
   address: string;
   city: string;
   state: string;
   zipCode: string;
   country: string;
-  
-  // Course Selection
-  courseId: string;
-  category: string;
-  
-  // Background
   educationLevel: string;
   workExperience: string;
-  hearAboutUs: string;
-  specialRequirements: string;
   
   // Dynamic fields based on category
   [key: string]: string | boolean;
 }
 
 interface RegistrationFormProps {
-  initialCategory?: string;
-  initialCourseId?: string;
   courses: Course[];
   categories: { id: string; title: string }[];
+  initialCourseId?: string;
+  initialCategory?: string;
 }
 
 export default function RegistrationForm({ 
-  initialCategory, 
-  initialCourseId,
-  courses,
+  courses, 
+  initialCourseId, 
+  initialCategory,
   categories
 }: RegistrationFormProps) {
   const initialFormData: RegistrationFormData = {
+    // Course Selection (Certification)
+    courseId: initialCourseId || '',
+    category: initialCategory || '',
+    
     // Personal Information
     firstName: '',
+    middleName: '',
     lastName: '',
+    dobDay: '',
+    dobMonth: '',
+    dobYear: '',
+    gender: '',
+    nationality: 'Sri Lanka',
     
     // Contact Information
     email: '',
-    phone: '',
+    mobileNumber: '',
     
-    // Address
+    // Education
+    qualification: '',
+    discipline: '',
+    
+    // Employment
+    employmentStatus: '',
+    employerName: '',
+    workExperienceYears: '',
+    workExperienceMonths: '',
+    programmingExperienceYears: '',
+    programmingExperienceMonths: '',
+    
+    // Billing Address
+    billingAddressLine1: '',
+    billingAddressLine2: '',
+    billingAddressCity: '',
+    billingAddressState: '',
+    billingAddressZipCode: '',
+    billingAddressCountry: '',
+    
+    // Mailing Address
+    sameAsBillingAddress: true,
+    mailingAddressLine1: '',
+    mailingAddressLine2: '',
+    mailingAddressCity: '',
+    mailingAddressState: '',
+    mailingAddressZipCode: '',
+    mailingAddressCountry: '',
+    
+    // Additional Information
+    hearAboutUs: '',
+    specialRequirements: '',
+    
+    // Legacy fields for backward compatibility
+    phone: '',
     address: '',
     city: '',
     state: '',
     zipCode: '',
     country: '',
-    
-    // Course Selection
-    courseId: initialCourseId || '',
-    category: initialCategory || '',
-    
-    // Background
     educationLevel: '',
     workExperience: '',
-    hearAboutUs: '',
-    specialRequirements: '',
   };
 
   const [formData, setFormData] = useState<RegistrationFormData>(initialFormData);
-  const [formStatus, setFormStatus] = useState({
-    submitted: false,
-    success: false,
-    message: ''
-  });
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [filteredCourses, setFilteredCourses] = useState(courses);
-  const [selectedCourse, setSelectedCourse] = useState<Course | undefined>(undefined);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
+  const [categorySpecificFields, setCategorySpecificFields] = useState<{[key: string]: string}[]>([]);
+  const [courseSpecificFields, setCourseSpecificFields] = useState<{[key: string]: string}[]>([]);
 
-  // Filter courses when category changes
+  // Filter courses based on selected category
   useEffect(() => {
     if (formData.category) {
       setFilteredCourses(courses.filter(course => course.category === formData.category));
     } else {
-      setFilteredCourses(courses);
+      setFilteredCourses([]);
     }
   }, [formData.category, courses]);
 
-  // Update selected course when courseId changes
-  useEffect(() => {
-    if (formData.courseId) {
-      const course = courses.find(c => c.id === formData.courseId);
-      setSelectedCourse(course);
-    } else {
-      setSelectedCourse(undefined);
-    }
-  }, [formData.courseId, courses]);
-
-  // Handle initial course selection from URL parameters
-  useEffect(() => {
-    if (initialCourseId) {
-      const selectedCourse = courses.find(course => course.id === initialCourseId);
-      if (selectedCourse) {
-        // If course exists but category doesn't match or isn't provided, use the course's category
-        if (!initialCategory || selectedCourse.category !== initialCategory) {
-          setFormData(prev => ({
-            ...prev,
-            category: selectedCourse.category,
-            courseId: initialCourseId
-          }));
-        }
-      }
-    }
-  }, [initialCategory, initialCourseId, courses]);
-
+  // Handle form field changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
-    // Special handling for category selection
+    // Special handling for course selection to reset course-specific fields
+    if (name === 'courseId' && value !== formData.courseId) {
+      setCourseSpecificFields([]);
+    }
+    
+    // Special handling for category selection to reset category-specific fields and course selection
     if (name === 'category' && value !== formData.category) {
+      setCategorySpecificFields([]);
+      setCourseSpecificFields([]);
       setFormData(prev => ({
         ...prev,
         [name]: value,
-        courseId: '' // Reset course selection when category changes
+        courseId: ''
+      }));
+      return;
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Handle checkbox changes
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    
+    // If checking "same as billing address", copy billing address to mailing address
+    if (name === 'sameAsBillingAddress' && checked) {
+      setFormData(prev => ({
+        ...prev,
+        sameAsBillingAddress: checked,
+        mailingAddressLine1: prev.billingAddressLine1,
+        mailingAddressLine2: prev.billingAddressLine2,
+        mailingAddressCity: prev.billingAddressCity,
+        mailingAddressState: prev.billingAddressState,
+        mailingAddressZipCode: prev.billingAddressZipCode,
+        mailingAddressCountry: prev.billingAddressCountry
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        [name]: value
+        [name]: checked
       }));
     }
   };
 
-  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: checked
-    }));
+  // Handle category-specific field changes
+  const handleCategoryFieldChange = (index: number, field: string, value: string) => {
+    const updatedFields = [...categorySpecificFields];
+    if (!updatedFields[index]) {
+      updatedFields[index] = {};
+    }
+    updatedFields[index][field] = value;
+    setCategorySpecificFields(updatedFields);
   };
 
+  // Handle course-specific field changes
+  const handleCourseFieldChange = (index: number, field: string, value: string) => {
+    const updatedFields = [...courseSpecificFields];
+    if (!updatedFields[index]) {
+      updatedFields[index] = {};
+    }
+    updatedFields[index][field] = value;
+    setCourseSpecificFields(updatedFields);
+  };
+
+  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
-    // Basic validation
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.courseId) {
-      setFormStatus({
-        submitted: true,
-        success: false,
-        message: 'Please fill in all required fields.'
-      });
-      return;
-    }
-
     try {
-      // In a real application, you would send this data to your backend
-      // For now, we'll just simulate a successful submission
-      // const response = await fetch('/api/register', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(formData),
-      // });
+      // Prepare the data for submission
+      const submissionData = {
+        ...formData,
+        categoryFields: categorySpecificFields,
+        courseFields: courseSpecificFields,
+        // Format the date of birth
+        dateOfBirth: `${formData.dobYear}-${formData.dobMonth}-${formData.dobDay}`,
+      };
       
-      // if (!response.ok) {
-      //   throw new Error('Registration failed');
-      // }
+      // Mock API call - replace with actual API endpoint
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      console.log('Form submitted:', submissionData);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setFormStatus({
-        submitted: true,
-        success: true,
-        message: 'Registration successful! We will contact you shortly with next steps.'
-      });
-      
-      // Show success modal
-      setShowSuccessModal(true);
-      
-      // Reset form after successful submission
+      // Reset form and show success message
       setFormData(initialFormData);
+      setCategorySpecificFields([]);
+      setCourseSpecificFields([]);
+      setIsSubmitted(true);
     } catch (error) {
-      setFormStatus({
-        submitted: true,
-        success: false,
-        message: 'Registration failed. Please try again later.'
-      });
+      console.error('Error submitting form:', error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  if (isSubmitted) {
+    return (
+      <SuccessMessage 
+        title="Registration Successful!" 
+        message="Thank you for registering. We will contact you shortly with further details."
+        buttonText="Register for Another Course"
+        onButtonClick={() => setIsSubmitted(false)}
+      />
+    );
+  }
+
   return (
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      {showSuccessModal && (
-        <SuccessMessage
-          title="Registration Successful!"
-          message={formStatus.message}
-          onClose={() => setShowSuccessModal(false)}
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">Course Registration</h2>
+      
+      {/* Course Selection */}
+      <CourseSelectionFields 
+        formData={formData}
+        handleChange={handleChange}
+        categories={categories}
+        filteredCourses={filteredCourses}
+      />
+      
+      {/* Personal Information */}
+      <PersonalInfoFields 
+        formData={formData}
+        handleChange={handleChange}
+      />
+      
+      {/* Contact Information */}
+      <ContactInfoFields 
+        formData={formData}
+        handleChange={handleChange}
+      />
+      
+      {/* Education */}
+      <EducationFields 
+        formData={formData}
+        handleChange={handleChange}
+      />
+      
+      {/* Employment */}
+      <EmploymentFields 
+        formData={formData}
+        handleChange={handleChange}
+      />
+      
+      {/* Billing Address */}
+      <AddressFields 
+        formData={formData}
+        handleChange={handleChange}
+        title="Billing Address"
+      />
+      
+      {/* Mailing Address */}
+      <MailingAddressFields 
+        formData={formData}
+        handleChange={handleChange}
+        handleCheckboxChange={handleCheckboxChange}
+      />
+      
+      {/* Category-specific fields */}
+      {formData.category && (
+        <CategorySpecificFields
+          category={formData.category}
+          categoryFields={categorySpecificFields}
+          handleCategoryFieldChange={handleCategoryFieldChange}
         />
       )}
       
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Course Selection */}
-        <CourseSelectionFields
-          formData={formData}
-          handleChange={handleChange}
-          categories={categories}
-          filteredCourses={filteredCourses}
+      {/* Course-specific fields */}
+      {formData.courseId && (
+        <CourseSpecificFields
+          courseId={formData.courseId}
+          courseFields={courseSpecificFields}
+          handleCourseFieldChange={handleCourseFieldChange}
         />
-        
-        {/* Personal Information */}
-        <PersonalInfoFields 
-          formData={formData}
-          handleChange={handleChange}
-        />
-        
-        {/* Contact Information */}
-        <ContactInfoFields 
-          formData={formData}
-          handleChange={handleChange}
-        />
-        
-        {/* Address */}
-        <AddressFields 
-          formData={formData}
-          handleChange={handleChange}
-        />
-        
-        {/* Education and Background */}
-        <EducationFields 
-          formData={formData}
-          handleChange={handleChange}
-        />
-        
-        {/* Category-specific fields */}
-        {formData.category && (
-          <CategorySpecificFields
-            category={formData.category}
-            formData={formData}
-            handleChange={handleChange}
-            handleCheckboxChange={handleCheckboxChange}
-          />
-        )}
-        
-        {/* Course-specific fields */}
-        {selectedCourse && (
-          <CourseSpecificFields
-            course={selectedCourse}
-            formData={formData}
-            handleChange={handleChange}
-            handleCheckboxChange={handleCheckboxChange}
-          />
-        )}
-        
-        {/* Special Requirements */}
-        <div className="mb-6">
-          <label htmlFor="specialRequirements" className="block text-gray-700 font-medium mb-2">Special Requirements or Accommodations</label>
+      )}
+      
+      {/* Special Requirements */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Additional Information</h3>
+        <div className="mb-4">
+          <label htmlFor="specialRequirements" className="block text-gray-700 font-medium mb-2">Special Requirements or Comments</label>
           <textarea
             id="specialRequirements"
             name="specialRequirements"
@@ -277,27 +364,21 @@ export default function RegistrationForm({
             onChange={handleChange}
             rows={4}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="Please let us know if you have any special requirements or need any accommodations"
-          />
+            placeholder="Please let us know if you have any special requirements or additional information to share."
+          ></textarea>
         </div>
-        
-        {/* Form Status */}
-        {formStatus.submitted && !formStatus.success && (
-          <div className="p-4 mb-6 text-sm text-red-700 bg-red-100 rounded-lg">
-            {formStatus.message}
-          </div>
-        )}
-        
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="px-6 py-3 bg-primary text-white font-semibold rounded-md hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          >
-            Submit Registration
-          </button>
-        </div>
-      </form>
-    </div>
+      </div>
+      
+      {/* Submit Button */}
+      <div className="mt-8">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? 'Submitting...' : 'Complete Registration'}
+        </button>
+      </div>
+    </form>
   );
 }

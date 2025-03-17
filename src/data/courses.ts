@@ -3,6 +3,7 @@ export interface Course {
   title: string;
   description: string;
   category: 'DASACA' | 'BootCamp' | 'Corporate';
+  categoryId?: string;
   duration: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
   price: number;

@@ -394,7 +394,7 @@ export default function CourseDetailPage() {
           
           <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Button variant="boffin" size="lg" asChild>
-              <Link href={`/register?category=${course.category.slug}&course=${course.slug}`}>
+              <Link href={`/register?category=${course.category.slug}&courseId=${course.id}`}>
                 Enroll Now
               </Link>
             </Button>

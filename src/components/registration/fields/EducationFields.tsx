@@ -6,43 +6,75 @@ interface EducationFieldsProps {
 }
 
 export default function EducationFields({ formData, handleChange }: EducationFieldsProps) {
+  const disciplines = [
+    'APPLIED SCIENCES',
+    'ARTIFICIAL INTELLIGENCE',
+    'BUSINESS PROCESS MODELING',
+    'COMPUTER SCIENCE',
+    'DATA MINING',
+    'DATA SCIENCES',
+    'DESCRIPTIVE ANALYTICS',
+    'DATA VISUALIZATION',
+    'DATA WAREHOUSING',
+    'DESCRIPTIVE STATISTICS',
+    'ECONOMICS',
+    'ENGINEERING',
+    'ENTERPRISE DATA MANAGEMENT',
+    'FINANCE',
+    'INFERENTIAL STATISTICS',
+    'INFORMATION TECHNOLOGY',
+    'MACHINE LEARNING',
+    'MANAGEMENT',
+    'MATHEMATICS',
+    'PREDICTIVE ANALYTICS',
+    'PRESCRIPTIVE ANALYTICS',
+    'SOCIAL SCIENCES',
+    'STATISTICS',
+    'TECHNOLOGY',
+    'TIME SERIES',
+    'OTHER DISCIPLINES'
+  ];
+
+  // Function to convert uppercase discipline to title case for display
+  const formatDiscipline = (discipline: string) => {
+    return discipline.split(' ').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+    ).join(' ');
+  };
+
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Education & Background</h3>
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">Education</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
         <div>
-          <label htmlFor="educationLevel" className="block text-gray-700 font-medium mb-2">Highest Education Level</label>
+          <label htmlFor="qualification" className="block text-gray-700 font-medium mb-2">Highest Qualification <span className="text-red-500">*</span></label>
           <select
-            id="educationLevel"
-            name="educationLevel"
-            value={formData.educationLevel}
+            id="qualification"
+            name="qualification"
+            value={formData.qualification || formData.educationLevel}
             onChange={handleChange}
+            required
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           >
-            <option value="">Select education level</option>
-            <option value="High School">High School</option>
-            <option value="Associate's Degree">Associate's Degree</option>
+            <option value="">Select qualification</option>
             <option value="Bachelor's Degree">Bachelor's Degree</option>
             <option value="Master's Degree">Master's Degree</option>
-            <option value="Doctorate">Doctorate</option>
-            <option value="Other">Other</option>
           </select>
         </div>
         <div>
-          <label htmlFor="workExperience" className="block text-gray-700 font-medium mb-2">Work Experience</label>
+          <label htmlFor="discipline" className="block text-gray-700 font-medium mb-2">Discipline <span className="text-red-500">*</span></label>
           <select
-            id="workExperience"
-            name="workExperience"
-            value={formData.workExperience}
+            id="discipline"
+            name="discipline"
+            value={formData.discipline}
             onChange={handleChange}
+            required
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           >
-            <option value="">Select work experience</option>
-            <option value="Student">Student</option>
-            <option value="0-2 years">0-2 years</option>
-            <option value="3-5 years">3-5 years</option>
-            <option value="6-10 years">6-10 years</option>
-            <option value="10+ years">10+ years</option>
+            <option value="">Select discipline</option>
+            {disciplines.map(discipline => (
+              <option key={discipline} value={discipline}>{formatDiscipline(discipline)}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -58,8 +90,8 @@ export default function EducationFields({ formData, handleChange }: EducationFie
           <option value="">Select an option</option>
           <option value="Search Engine">Search Engine</option>
           <option value="Social Media">Social Media</option>
-          <option value="Friend/Colleague">Friend/Colleague</option>
-          <option value="Email">Email</option>
+          <option value="Friend or Colleague">Friend or Colleague</option>
+          <option value="Professional Network">Professional Network</option>
           <option value="Advertisement">Advertisement</option>
           <option value="Other">Other</option>
         </select>

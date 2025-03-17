@@ -5,70 +5,124 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
-    const { courseId, userData, specialRequirements, educationLevel, workExperience, hearAboutUs, categorySpecificData } = data;
+    
+    // Extract data from the multi-step form
+    const {
+      // Course selection
+      courseId,
+      category,
+      
+      // Personal information
+      firstName,
+      lastName,
+      email,
+      phone,
+      gender,
+      dateOfBirth,
+      address,
+      city,
+      postalCode,
+      
+      // Education
+      highestQualification,
+      institution,
+      fieldOfStudy,
+      yearOfCompletion,
+      
+      // Work experience
+      employmentStatus,
+      employer,
+      jobTitle,
+      yearsOfExperience,
+      
+      // Payment
+      couponCode,
+      paymentMethod,
+      finalPrice
+    } = data;
     
     // First, check if the course exists
-    const course = await prisma.course.findUnique({
-      where: { id: parseInt(courseId) },
-      select: { regularPrice: true, salePrice: true }
-    });
-    
-    if (!course) {
+    try {
+      console.log('Looking for course with ID:', courseId);
+      const course = await prisma.course.findUnique({
+        where: { id: parseInt(courseId) },
+        select: { regularPrice: true, salePrice: true }
+      });
+      
+      console.log('Course found:', course);
+      
+      if (!course) {
+        return NextResponse.json(
+          { error: 'Course not found' },
+          { status: 404 }
+        );
+      }
+    } catch (err) {
+      console.error('Error finding course:', err);
       return NextResponse.json(
-        { error: 'Course not found' },
-        { status: 404 }
+        { error: 'Error finding course', details: err instanceof Error ? err.message : String(err) },
+        { status: 500 }
       );
     }
     
     // Check if user exists, if not create a new user
     let user = await prisma.user.findUnique({
-      where: { email: userData.email }
+      where: { email }
     });
     
     if (!user) {
       user = await prisma.user.create({
         data: {
-          firstName: userData.firstName,
-          lastName: userData.lastName,
-          email: userData.email,
-          phone: userData.phone,
-          address: userData.address,
-          city: userData.city,
-          state: userData.state,
-          zipCode: userData.zipCode,
-          country: userData.country,
+          firstName,
+          lastName,
+          email,
+          phone,
+          address,
+          city,
+          zipCode: postalCode, // Using zipCode field from schema
           role: 'student'
         }
       });
     }
     
-    // Calculate the final price (using sale price if available)
-    const finalPrice = course.salePrice || course.regularPrice;
+    // Store education and work experience as strings in the registration
+    const educationInfo = `${highestQualification || ''} in ${fieldOfStudy || ''} from ${institution || ''} ${yearOfCompletion ? `(${yearOfCompletion})` : ''}`;
+    
+    const workExperienceInfo = employmentStatus ? 
+      `${employmentStatus}${employer ? ` at ${employer}` : ''}${jobTitle ? ` as ${jobTitle}` : ''}${yearsOfExperience ? ` with ${yearsOfExperience} years of experience` : ''}` : 
+      '';
     
     // Create the registration
     const registration = await prisma.registration.create({
       data: {
         userId: user.id,
         courseId: parseInt(courseId),
-        finalPrice,
-        specialRequirements,
-        educationLevel,
-        workExperience,
-        hearAboutUs,
-        categorySpecificData: categorySpecificData ? JSON.parse(JSON.stringify(categorySpecificData)) : undefined,
-        status: 'pending'
+        status: 'pending',
+        finalPrice: parseFloat(finalPrice),
+        educationLevel: educationInfo.trim(),
+        workExperience: workExperienceInfo.trim(),
+        specialRequirements: `Payment Method: ${paymentMethod}`,
+        couponId: null // We'll handle coupon separately if needed
       }
     });
     
     return NextResponse.json({
       success: true,
-      registration,
-      message: 'Registration submitted successfully. Our team will contact you shortly.'
-    }, { status: 201 });
+      message: 'Registration successful',
+      data: {
+        registrationId: registration.id,
+        user: {
+          id: user.id,
+          email: user.email,
+          name: `${user.firstName} ${user.lastName}`
+        }
+      }
+    });
+    
   } catch (error) {
-    console.error('Error processing registration:', error);
+    console.error('Registration error:', error);
     return NextResponse.json(
-      { error: 'Failed to process registration' },
+      { success: false, error: 'Failed to process registration' },
       { status: 500 }
     );
   }

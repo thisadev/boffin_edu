@@ -647,6 +647,22 @@ async function main() {
         status: 'completed',
         registrationDate: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000), // 90 days ago
         finalPrice: 1999.99,
+        // Personal Information
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        phone: '+94771234567',
+        gender: 'male',
+        dateOfBirth: '1990-01-01',
+        address: '123 Main St',
+        city: 'Colombo',
+        postalCode: '10000',
+        // Education & Experience
+        highestQualification: 'bachelors',
+        institution: 'University of Colombo',
+        fieldOfStudy: 'Computer Science',
+        // Payment Information
+        paymentMethod: 'bank_transfer',
       },
     });
 
@@ -657,6 +673,22 @@ async function main() {
         status: 'completed',
         registrationDate: new Date(Date.now() - 120 * 24 * 60 * 60 * 1000), // 120 days ago
         finalPrice: 1499.99,
+        // Personal Information
+        firstName: 'Jane',
+        lastName: 'Smith',
+        email: 'jane.smith@example.com',
+        phone: '+94772345678',
+        gender: 'female',
+        dateOfBirth: '1992-05-15',
+        address: '456 Park Ave',
+        city: 'Kandy',
+        postalCode: '20000',
+        // Education & Experience
+        highestQualification: 'masters',
+        institution: 'University of Peradeniya',
+        fieldOfStudy: 'Information Technology',
+        // Payment Information
+        paymentMethod: 'myfees',
       },
     });
 
@@ -667,6 +699,22 @@ async function main() {
         status: 'completed',
         registrationDate: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), // 60 days ago
         finalPrice: 4999.99,
+        // Personal Information
+        firstName: 'Robert',
+        lastName: 'Johnson',
+        email: 'robert.johnson@example.com',
+        phone: '+94773456789',
+        gender: 'male',
+        dateOfBirth: '1985-11-20',
+        address: '789 Ocean Blvd',
+        city: 'Galle',
+        postalCode: '80000',
+        // Education & Experience
+        highestQualification: 'phd',
+        institution: 'University of Moratuwa',
+        fieldOfStudy: 'Business Administration',
+        // Payment Information
+        paymentMethod: 'bank_transfer',
       },
     });
 
