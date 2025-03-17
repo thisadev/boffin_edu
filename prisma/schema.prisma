@@ -319,7 +319,7 @@ model MediaAsset {
   uploadedById     Int                          @map("uploaded_by_id")
   createdAt        DateTime                     @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime                     @default(now()) @map("updated_at") @db.Timestamptz(6)
-  fileSize         Int
+  fileSize         Int                          @map("file_size")
   uploadedBy       User                         @relation(fields: [uploadedById], references: [id])
   placeholders     MediaPlaceholderAssignment[]
 
