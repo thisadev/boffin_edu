@@ -1,34 +1,18 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React from 'react';
 
 interface EducationStepProps {
   formData: any;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  setFormComplete: (step: string, isComplete: boolean) => void;
   validationErrors?: { [key: string]: string };
 }
 
 const EducationStep: React.FC<EducationStepProps> = ({ 
   formData, 
   handleChange,
-  setFormComplete,
   validationErrors = {}
 }) => {
-  // Check if education information is complete
-  useEffect(() => {
-    const requiredFields = ['highestQualification', 'institution', 'fieldOfStudy'];
-    const isComplete = requiredFields.every(field => formData[field] && formData[field].trim() !== '');
-    const completionStatus = isComplete;
-    
-    // Use a callback to update form completion status
-    const updateCompletion = () => {
-      setFormComplete('education', completionStatus);
-    };
-    
-    updateCompletion();
-  }, [formData]);
-
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <h2 className="text-xl font-bold text-boffin-primary mb-4">Education & Experience</h2>

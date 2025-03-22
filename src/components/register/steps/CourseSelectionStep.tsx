@@ -6,14 +6,12 @@ import { Course, courseCategories, courses } from '@/data/courses';
 interface CourseSelectionStepProps {
   formData: any;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  setFormComplete: (step: string, isComplete: boolean) => void;
   validationErrors?: { [key: string]: string };
 }
 
 const CourseSelectionStep: React.FC<CourseSelectionStepProps> = ({ 
   formData, 
   handleChange,
-  setFormComplete,
   validationErrors = {}
 }) => {
   const [filteredCourses, setFilteredCourses] = React.useState(courses);
@@ -34,22 +32,10 @@ const CourseSelectionStep: React.FC<CourseSelectionStepProps> = ({
     if (formData.courseId) {
       const course = courses.find(course => course.id === formData.courseId) || null;
       setSelectedCourse(course);
-      // Update form completion status immediately when course is selected
-      setFormComplete('course', !!course);
     } else {
       setSelectedCourse(null);
-      setFormComplete('course', false);
     }
-  }, [formData.courseId, setFormComplete]);
-
-  // Handle form completion status
-  useEffect(() => {
-    const completionStatus = !!selectedCourse;
-    const updateCompletion = () => {
-      setFormComplete('course', completionStatus);
-    };
-    updateCompletion();
-  }, [selectedCourse, setFormComplete]);
+  }, [formData.courseId]);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">

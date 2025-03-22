@@ -14,24 +14,24 @@ import { Button } from '@/components/ui/button';
 
 interface RegistrationFormData {
   // Course selection
-  category: string;
-  courseId: number;
+  category?: string;
+  courseId?: number;
   
   // Personal information
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  gender: string;
-  dateOfBirth: string;
-  address: string;
-  city: string;
-  postalCode: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  gender?: string;
+  dateOfBirth?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
   
   // Education
-  highestQualification: string;
-  institution: string;
-  fieldOfStudy: string;
+  highestQualification?: string;
+  institution?: string;
+  fieldOfStudy?: string;
   yearOfCompletion?: string;
   
   // Work experience
@@ -42,10 +42,14 @@ interface RegistrationFormData {
   
   // Payment
   couponCode?: string;
-  paymentMethod: string;
+  paymentMethod?: string;
   
   // Terms
-  terms: boolean;
+  terms?: boolean;
+}
+
+interface FormCompletionStatus {
+  [key: string]: boolean;
 }
 
 export default function MultiStepRegisterForm() {
@@ -60,34 +64,64 @@ export default function MultiStepRegisterForm() {
     { id: 'payment', title: 'Payment' },
     { id: 'review', title: 'Review & Submit' }
   ];
-  
+
   // Form state
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<RegistrationFormData>({
-    category: '',
-    courseId: courseId ? parseInt(courseId) : 0,
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    gender: '',
-    dateOfBirth: '',
-    address: '',
-    city: '',
-    postalCode: '',
-    highestQualification: '',
-    institution: '',
-    fieldOfStudy: '',
-    paymentMethod: '',
-    terms: false
+    category: undefined,
+    courseId: undefined,
+    firstName: undefined,
+    lastName: undefined,
+    email: undefined,
+    phone: undefined,
+    gender: undefined,
+    dateOfBirth: undefined,
+    address: undefined,
+    city: undefined,
+    postalCode: undefined,
+    highestQualification: undefined,
+    institution: undefined,
+    fieldOfStudy: undefined,
+    paymentMethod: undefined,
+    terms: undefined
   });
-  
-  const [formComplete, setFormComplete] = useState({
+
+  // Form completion status
+  const [formComplete, setFormComplete] = useState<Record<string, boolean>>({
     course: false,
     personal: false,
     education: false,
     payment: false
   });
+
+  // Update form completion status for a specific step
+  const handleFormComplete = (step: string, isComplete: boolean) => {
+    setFormComplete(prev => ({ ...prev, [step]: isComplete }));
+  };
+
+  // Check if a step is complete
+  const isStepComplete = (stepId: string): boolean => {
+    switch (stepId) {
+      case 'course':
+        return !!formData.category && !!formData.courseId;
+      case 'personal':
+        return !!formData.firstName && !!formData.lastName && 
+          !!formData.email && !!formData.phone && 
+          !!formData.gender && !!formData.dateOfBirth &&
+          !!formData.address && !!formData.city && !!formData.postalCode;
+      case 'education':
+        return !!formData.highestQualification && !!formData.institution && !!formData.fieldOfStudy;
+      case 'payment':
+        return !!formData.paymentMethod;
+      case 'review':
+        return !!formData.terms;
+      default:
+        return false;
+    }
+  };
+
+  // Form validation state
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [couponDiscount, setCouponDiscount] = useState(0);
@@ -96,9 +130,6 @@ export default function MultiStepRegisterForm() {
     success: false,
     message: ''
   });
-  
-  // Form validation state
-  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
   
   // Initialize form data with URL parameters
   useEffect(() => {
@@ -114,7 +145,6 @@ export default function MultiStepRegisterForm() {
       const selectedCourse = courses.find(course => course.id === parseInt(courseId));
       if (selectedCourse) {
         setSelectedCourse(selectedCourse);
-        handleFormComplete('course', true);
         // Skip to personal info step if course is already selected
         setCurrentStep(1);
       }
@@ -131,36 +161,58 @@ export default function MultiStepRegisterForm() {
     }
   }, [formData.courseId]);
   
-  // Handle form input changes
+  // Handle form input changes with validation
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+    const newFormData = { ...formData };
     
     // Handle checkbox inputs
     if (type === 'checkbox') {
-      const checked = (e.target as HTMLInputElement).checked;
-      setFormData(prev => ({ ...prev, [name]: checked }));
+      newFormData[name as keyof typeof formData] = (e.target as HTMLInputElement).checked;
     } else if (name === 'courseId') {
-      setFormData(prev => ({ ...prev, [name]: parseInt(value) }));
+      newFormData[name as keyof typeof formData] = parseInt(value);
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      newFormData[name as keyof typeof formData] = value;
     }
-  };
-  
-  // Update form completion status for a specific step
-  const handleFormComplete = (step: string, isComplete: boolean) => {
-    setFormComplete(prev => ({ ...prev, [step]: isComplete }));
+
+    setFormData(newFormData);
     
-    // If this is the course step and it's complete, show the course details
-    if (step === 'course' && isComplete) {
-      setCurrentStep(1); // Move to personal info step
+    // Validate the current field
+    const currentErrors = { ...validationErrors };
+    const currentStepId = steps[currentStep].id;
+    
+    // Clear error for the current field
+    if (currentErrors[name]) {
+      delete currentErrors[name];
+    }
+    
+    // Validate the current field
+    if (currentStepId === 'personal') {
+      if (name === 'email') {
+        if (!value.trim()) {
+          currentErrors.email = 'Email is required';
+        } else if (!/^\S+@\S+\.\S+$/.test(value)) {
+          currentErrors.email = 'Please enter a valid email address';
+        }
+      } else if (name === 'phone') {
+        if (!value.trim()) {
+          currentErrors.phone = 'Phone number is required';
+        } else if (!/^[0-9]{10}$/.test(value)) {
+          currentErrors.phone = 'Please enter a valid 10-digit phone number';
+        }
+      }
+    }
+    
+    // Set validation errors
+    setValidationErrors(currentErrors);
+    
+    // Update form completion status for current step
+    const isComplete = isStepComplete(currentStepId);
+    if (isComplete !== formComplete[currentStepId]) {
+      handleFormComplete(currentStepId, isComplete);
     }
   };
-  
-  // Handle coupon discount update
-  const handleCouponDiscountUpdate = (discount: number) => {
-    setCouponDiscount(discount);
-  };
-  
+
   // Handle next step
   const handleNext = () => {
     const currentStepId = steps[currentStep].id;
@@ -198,7 +250,7 @@ export default function MultiStepRegisterForm() {
     
     // For other steps, check if all previous steps are complete
     for (let i = 0; i < stepIndex; i++) {
-      if (!formComplete[steps[i].id as keyof typeof formComplete]) {
+      if (!isStepComplete(steps[i].id)) {
         return false;
       }
     }
@@ -217,22 +269,23 @@ export default function MultiStepRegisterForm() {
         break;
       
       case 'personal':
-        if (!formData.firstName.trim()) errors.firstName = 'First name is required';
-        if (!formData.lastName.trim()) errors.lastName = 'Last name is required';
-        if (!formData.email.trim()) errors.email = 'Email is required';
+        if (!formData.firstName?.trim()) errors.firstName = 'First name is required';
+        if (!formData.lastName?.trim()) errors.lastName = 'Last name is required';
+        if (!formData.email?.trim()) errors.email = 'Email is required';
         else if (!/^\S+@\S+\.\S+$/.test(formData.email)) errors.email = 'Please enter a valid email';
-        if (!formData.phone.trim()) errors.phone = 'Phone number is required';
+        if (!formData.phone?.trim()) errors.phone = 'Phone number is required';
+        else if (!/^[0-9]{10}$/.test(formData.phone)) errors.phone = 'Please enter a valid 10-digit phone number';
         if (!formData.gender) errors.gender = 'Please select your gender';
         if (!formData.dateOfBirth) errors.dateOfBirth = 'Date of birth is required';
-        if (!formData.address.trim()) errors.address = 'Address is required';
-        if (!formData.city.trim()) errors.city = 'City is required';
-        if (!formData.postalCode.trim()) errors.postalCode = 'Postal code is required';
+        if (!formData.address?.trim()) errors.address = 'Address is required';
+        if (!formData.city?.trim()) errors.city = 'City is required';
+        if (!formData.postalCode?.trim()) errors.postalCode = 'Postal code is required';
         break;
       
       case 'education':
         if (!formData.highestQualification) errors.highestQualification = 'Please select your highest qualification';
-        if (!formData.institution.trim()) errors.institution = 'Institution name is required';
-        if (!formData.fieldOfStudy.trim()) errors.fieldOfStudy = 'Field of study is required';
+        if (!formData.institution?.trim()) errors.institution = 'Institution name is required';
+        if (!formData.fieldOfStudy?.trim()) errors.fieldOfStudy = 'Field of study is required';
         break;
       
       case 'payment':
@@ -250,6 +303,11 @@ export default function MultiStepRegisterForm() {
     }
     
     return Object.keys(errors).length === 0;
+  };
+  
+  // Handle coupon discount update
+  const handleCouponDiscountUpdate = (discount: number) => {
+    setCouponDiscount(discount);
   };
   
   // Handle form submission
@@ -297,22 +355,22 @@ export default function MultiStepRegisterForm() {
 
       // Reset form
       setFormData({
-        category: '',
-        courseId: 0,
-        firstName: '',
-        lastName: '',
-        email: '',
-        phone: '',
-        gender: '',
-        dateOfBirth: '',
-        address: '',
-        city: '',
-        postalCode: '',
-        highestQualification: '',
-        institution: '',
-        fieldOfStudy: '',
-        paymentMethod: '',
-        terms: false
+        category: undefined,
+        courseId: undefined,
+        firstName: undefined,
+        lastName: undefined,
+        email: undefined,
+        phone: undefined,
+        gender: undefined,
+        dateOfBirth: undefined,
+        address: undefined,
+        city: undefined,
+        postalCode: undefined,
+        highestQualification: undefined,
+        institution: undefined,
+        fieldOfStudy: undefined,
+        paymentMethod: undefined,
+        terms: undefined
       });
       setCurrentStep(0);
       setSelectedCourse(null);
@@ -340,7 +398,6 @@ export default function MultiStepRegisterForm() {
           <CourseSelectionStep
             formData={formData}
             handleChange={handleChange}
-            setFormComplete={(step, isComplete) => handleFormComplete(step, isComplete)}
             validationErrors={validationErrors}
           />
         );
@@ -349,7 +406,6 @@ export default function MultiStepRegisterForm() {
           <PersonalInfoStep
             formData={formData}
             handleChange={handleChange}
-            setFormComplete={(step, isComplete) => handleFormComplete(step, isComplete)}
             validationErrors={validationErrors}
           />
         );
@@ -358,7 +414,6 @@ export default function MultiStepRegisterForm() {
           <EducationStep
             formData={formData}
             handleChange={handleChange}
-            setFormComplete={(step, isComplete) => handleFormComplete(step, isComplete)}
             validationErrors={validationErrors}
           />
         );
@@ -368,7 +423,6 @@ export default function MultiStepRegisterForm() {
             formData={formData}
             handleChange={handleChange}
             selectedCourse={selectedCourse}
-            setFormComplete={(step, isComplete) => handleFormComplete(step, isComplete)}
             validationErrors={validationErrors}
           />
         );
@@ -398,54 +452,49 @@ export default function MultiStepRegisterForm() {
       />
     );
   }
-  
+
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-4xl mx-auto">
-      {/* Breadcrumb Navigation */}
-      <FormBreadcrumbs
-        steps={steps}
-        currentStep={currentStep}
-        completedSteps={formComplete}
-        onStepClick={handleStepClick}
-      />
-      
-      {/* Current Step */}
-      {renderStep()}
-      
-      {/* Navigation Buttons */}
-      <div className="flex justify-between mt-8 mb-12">
-        {currentStep > 0 ? (
-          <Button
-            type="button"
-            onClick={handlePrevious}
-            variant="outline"
-            className="px-6"
-          >
-            Previous
-          </Button>
-        ) : (
-          <div></div> // Empty div to maintain flex spacing
-        )}
-        
-        {currentStep < steps.length - 1 ? (
-          <Button
-            type="button"
-            onClick={handleNext}
-            disabled={!formComplete[steps[currentStep].id as keyof typeof formComplete]}
-            className="px-6"
-          >
-            Next
-          </Button>
-        ) : (
-          <Button
-            type="submit"
-            disabled={!formData.terms || formStatus.submitted}
-            className="px-6 bg-green-600 hover:bg-green-700"
-          >
-            {formStatus.submitted ? 'Processing...' : 'Submit and Pay'}
-          </Button>
-        )}
+    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+      <div className="space-y-6">
+        <FormBreadcrumbs
+          steps={steps}
+          currentStep={currentStep}
+          completedSteps={formComplete}
+          onStepClick={handleStepClick}
+        />
+
+        {renderStep()}
+
+        <div className="flex justify-end space-x-4">
+          {currentStep > 0 && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePrevious}
+              className="px-6"
+            >
+              Previous
+            </Button>
+          )}
+          {currentStep < steps.length - 1 ? (
+            <Button
+              type="button"
+              onClick={handleNext}
+              disabled={!isStepComplete(steps[currentStep].id)}
+              className="px-6"
+            >
+              Next
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              className="px-6"
+            >
+              Submit
+            </Button>
+          )}
+        </div>
       </div>
     </form>
   );
-}
+};

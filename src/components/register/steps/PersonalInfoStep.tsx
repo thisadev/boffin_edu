@@ -1,34 +1,18 @@
 "use client";
 
-import React, { useEffect } from 'react';
+import React from 'react';
 
 interface PersonalInfoStepProps {
   formData: any;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
-  setFormComplete: (step: string, isComplete: boolean) => void;
   validationErrors?: { [key: string]: string };
 }
 
 const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({ 
   formData, 
   handleChange,
-  setFormComplete,
   validationErrors = {}
 }) => {
-  // Check if personal information is complete
-  useEffect(() => {
-    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'gender', 'dateOfBirth', 'address', 'city', 'postalCode'];
-    const isComplete = requiredFields.every(field => formData[field] && (formData[field].trim() !== ''));
-    const completionStatus = isComplete;
-    
-    // Use a callback to update form completion status
-    const updateCompletion = () => {
-      setFormComplete('personal', completionStatus);
-    };
-    
-    updateCompletion();
-  }, [formData]);
-
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <h2 className="text-xl font-bold text-boffin-primary mb-4">Personal Information</h2>
@@ -46,6 +30,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
           />
+          {validationErrors.firstName && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.firstName}</p>
+          )}
         </div>
 
         {/* Last Name */}
@@ -60,6 +47,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
           />
+          {validationErrors.lastName && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.lastName}</p>
+          )}
         </div>
 
         {/* Email */}
@@ -74,6 +64,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
           />
+          {validationErrors.email && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.email}</p>
+          )}
         </div>
 
         {/* Phone */}
@@ -88,6 +81,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
           />
+          {validationErrors.phone && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.phone}</p>
+          )}
         </div>
 
         {/* Gender */}
@@ -113,6 +109,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
               </svg>
             </div>
           </div>
+          {validationErrors.gender && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.gender}</p>
+          )}
         </div>
 
         {/* Date of Birth */}
@@ -127,6 +126,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
           />
+          {validationErrors.dateOfBirth && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.dateOfBirth}</p>
+          )}
         </div>
       </div>
 
@@ -144,6 +146,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
           />
+          {validationErrors.address && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.address}</p>
+          )}
         </div>
 
         {/* City */}
@@ -158,6 +163,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
           />
+          {validationErrors.city && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.city}</p>
+          )}
         </div>
 
         {/* Postal Code */}
@@ -172,6 +180,9 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             required
             className="w-full px-4 py-2 border border-gray-300 rounded-md text-boffin-background bg-white focus:outline-none focus:ring-2 focus:ring-boffin-primary focus:border-transparent"
           />
+          {validationErrors.postalCode && (
+            <p className="mt-1 text-sm text-red-500">{validationErrors.postalCode}</p>
+          )}
         </div>
       </div>
     </div>

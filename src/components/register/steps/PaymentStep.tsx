@@ -8,7 +8,6 @@ interface PaymentStepProps {
   formData: any;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   selectedCourse: Course | null;
-  setFormComplete: (step: string, isComplete: boolean) => void;
   validationErrors?: { [key: string]: string };
 }
 
@@ -16,7 +15,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   formData, 
   handleChange,
   selectedCourse,
-  setFormComplete,
   validationErrors = {}
 }) => {
   const [couponStatus, setCouponStatus] = useState({
@@ -56,8 +54,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
   // Validate coupon code when it changes
   useEffect(() => {
-    if (formData.couponCode && typeof formData.couponCode === 'string' && selectedCourse) {
-      validateCouponCode(formData.couponCode);
+    if (formData.couponCode && (typeof formData.couponCode === 'string' || typeof formData.couponCode === 'number') && selectedCourse) {
+      validateCouponCode(formData.couponCode.toString());
     } else if (!formData.couponCode) {
       // Reset coupon status when coupon code is cleared
       setCouponStatus({
@@ -67,19 +65,6 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
       });
     }
   }, [formData.couponCode, selectedCourse, validateCouponCode]);
-
-  // Check if payment information is complete
-  useEffect(() => {
-    const isComplete = !!formData.paymentMethod;
-    const completionStatus = isComplete;
-    
-    // Use a callback to update form completion status
-    const updateCompletion = () => {
-      setFormComplete('payment', completionStatus);
-    };
-    
-    updateCompletion();
-  }, [formData.paymentMethod]);
 
   // Calculate final price
   const calculateFinalPrice = () => {
@@ -91,8 +76,8 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
 
   // Handle apply coupon button click
   const handleApplyCoupon = () => {
-    if (formData.couponCode && typeof formData.couponCode === 'string') {
-      validateCouponCode(formData.couponCode);
+    if (formData.couponCode && (typeof formData.couponCode === 'string' || typeof formData.couponCode === 'number')) {
+      validateCouponCode(formData.couponCode.toString());
     }
   };
 
