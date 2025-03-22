@@ -1,11 +1,18 @@
 import { Metadata } from 'next';
 import { Container } from '@/components/ui/container';
 import MultiStepRegisterForm from '@/components/register/MultiStepRegisterForm';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Register | Boffin Institute of Data Science',
   description: 'Register for courses at Boffin Institute of Data Science',
 };
+
+const Loading = () => (
+  <div className="flex items-center justify-center py-12">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-boffin-primary"></div>
+  </div>
+);
 
 export default function RegisterPage() {
   return (
@@ -18,7 +25,9 @@ export default function RegisterPage() {
             All fields marked with an asterisk (*) are required.
           </p>
           
-          <MultiStepRegisterForm />
+          <Suspense fallback={<Loading />}>
+            <MultiStepRegisterForm />
+          </Suspense>
         </div>
       </Container>
     </div>
