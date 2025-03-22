@@ -19,8 +19,15 @@ const EducationStep: React.FC<EducationStepProps> = ({
   useEffect(() => {
     const requiredFields = ['highestQualification', 'institution', 'fieldOfStudy'];
     const isComplete = requiredFields.every(field => formData[field] && formData[field].trim() !== '');
-    setFormComplete('education', isComplete);
-  }, [formData.highestQualification, formData.institution, formData.fieldOfStudy, setFormComplete]);
+    const completionStatus = isComplete;
+    
+    // Use a callback to update form completion status
+    const updateCompletion = () => {
+      setFormComplete('education', completionStatus);
+    };
+    
+    updateCompletion();
+  }, [formData]);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">

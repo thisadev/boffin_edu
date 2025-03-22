@@ -1,5 +1,5 @@
 export interface Course {
-  id: string;
+  id: number;
   title: string;
   description: string;
   category: 'DASACA' | 'BootCamp' | 'Corporate';
@@ -57,7 +57,7 @@ export const courseCategories: CourseCategory[] = [
 export const courses: Course[] = [
   // DASACA Certification Courses
   {
-    id: 'dasaca-foundation',
+    id: 1,
     title: 'DASACA™ Foundation',
     description: 'Build a solid foundation in data science and analytics with our entry-level certification.',
     category: 'DASACA',
@@ -102,7 +102,7 @@ export const courses: Course[] = [
     slug: 'dasaca-foundation'
   },
   {
-    id: 'dasaca-professional',
+    id: 2,
     title: 'DASACA™ Professional',
     description: 'Advance your data science career with our comprehensive professional certification.',
     category: 'DASACA',
@@ -147,7 +147,7 @@ export const courses: Course[] = [
     slug: 'dasaca-professional'
   },
   {
-    id: 'dasaca-expert',
+    id: 3,
     title: 'DASACA™ Expert',
     description: 'Master advanced data science techniques and become a certified expert in the field.',
     category: 'DASACA',
@@ -194,7 +194,7 @@ export const courses: Course[] = [
   
   // Boot Camp Courses
   {
-    id: 'python-data-analytics',
+    id: 4,
     title: 'Python for Data Analytics',
     description: 'Intensive boot camp to master Python for data analysis and visualization.',
     category: 'BootCamp',
@@ -239,7 +239,7 @@ export const courses: Course[] = [
     slug: 'python-data-analytics'
   },
   {
-    id: 'machine-learning-bootcamp',
+    id: 5,
     title: 'Machine Learning Boot Camp',
     description: 'Fast-track your machine learning skills with this intensive, project-based boot camp.',
     category: 'BootCamp',
@@ -284,7 +284,7 @@ export const courses: Course[] = [
     slug: 'machine-learning-bootcamp'
   },
   {
-    id: 'data-visualization-bootcamp',
+    id: 6,
     title: 'Data Visualization Boot Camp',
     description: 'Learn to create compelling data visualizations and interactive dashboards.',
     category: 'BootCamp',
@@ -331,7 +331,7 @@ export const courses: Course[] = [
   
   // Corporate Training Courses
   {
-    id: 'data-literacy-for-business',
+    id: 7,
     title: 'Data Literacy for Business Leaders',
     description: 'Empower business leaders with the skills to understand and leverage data for decision-making.',
     category: 'Corporate',
@@ -375,7 +375,7 @@ export const courses: Course[] = [
     slug: 'data-literacy-for-business'
   },
   {
-    id: 'ai-for-enterprise',
+    id: 8,
     title: 'AI for Enterprise Applications',
     description: 'Comprehensive training program on implementing AI solutions in enterprise environments.',
     category: 'Corporate',
@@ -419,7 +419,7 @@ export const courses: Course[] = [
     slug: 'ai-for-enterprise'
   },
   {
-    id: 'data-team-upskilling',
+    id: 9,
     title: 'Data Team Upskilling Program',
     description: 'Comprehensive training to transform your existing technical teams into data science professionals.',
     category: 'Corporate',

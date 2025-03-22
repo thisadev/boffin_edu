@@ -71,8 +71,15 @@ const PaymentStep: React.FC<PaymentStepProps> = ({
   // Check if payment information is complete
   useEffect(() => {
     const isComplete = !!formData.paymentMethod;
-    setFormComplete('payment', isComplete);
-  }, [formData.paymentMethod, setFormComplete]);
+    const completionStatus = isComplete;
+    
+    // Use a callback to update form completion status
+    const updateCompletion = () => {
+      setFormComplete('payment', completionStatus);
+    };
+    
+    updateCompletion();
+  }, [formData.paymentMethod]);
 
   // Calculate final price
   const calculateFinalPrice = () => {

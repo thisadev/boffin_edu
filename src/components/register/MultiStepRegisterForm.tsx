@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 interface RegistrationFormData {
   // Course selection
   category: string;
-  courseId: string;
+  courseId: number;
   
   // Personal information
   firstName: string;
@@ -65,7 +65,7 @@ export default function MultiStepRegisterForm() {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<RegistrationFormData>({
     category: '',
-    courseId: courseId || '',
+    courseId: courseId ? parseInt(courseId) : 0,
     firstName: '',
     lastName: '',
     email: '',
@@ -110,8 +110,8 @@ export default function MultiStepRegisterForm() {
     }
     
     if (courseId) {
-      setFormData(prev => ({ ...prev, courseId }));
-      const selectedCourse = courses.find(course => course.id === courseId);
+      setFormData(prev => ({ ...prev, courseId: parseInt(courseId) }));
+      const selectedCourse = courses.find(course => course.id === parseInt(courseId));
       if (selectedCourse) {
         setSelectedCourse(selectedCourse);
         handleFormComplete('course', true);
@@ -139,6 +139,8 @@ export default function MultiStepRegisterForm() {
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData(prev => ({ ...prev, [name]: checked }));
+    } else if (name === 'courseId') {
+      setFormData(prev => ({ ...prev, [name]: parseInt(value) }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -147,6 +149,11 @@ export default function MultiStepRegisterForm() {
   // Update form completion status for a specific step
   const handleFormComplete = (step: string, isComplete: boolean) => {
     setFormComplete(prev => ({ ...prev, [step]: isComplete }));
+    
+    // If this is the course step and it's complete, show the course details
+    if (step === 'course' && isComplete) {
+      setCurrentStep(1); // Move to personal info step
+    }
   };
   
   // Handle coupon discount update
@@ -237,8 +244,8 @@ export default function MultiStepRegisterForm() {
         break;
     }
     
-    // Only update validation errors if there are actual errors to avoid unnecessary re-renders
-    if (Object.keys(errors).length > 0 || Object.keys(validationErrors).length > 0) {
+    // Only update validation errors if there are actual errors
+    if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
     }
     
@@ -249,35 +256,23 @@ export default function MultiStepRegisterForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate the review step before submission
-    if (!validateStep('review')) {
-      return;
-    }
-    
-    // Validate terms acceptance
-    if (!formData.terms) {
-      alert('Please accept the terms and conditions to proceed.');
-      return;
-    }
-    
-    // Set form status to submitting
-    setFormStatus({
-      submitted: true,
-      success: false,
-      message: 'Submitting your registration...'
-    });
-    
     try {
-      // Calculate final price
+      // Validate all steps
+      const isValid = steps.every(step => validateStep(step.id));
+      if (!isValid) {
+        return;
+      }
+
+      // Prepare registration data
       const finalPrice = selectedCourse ? 
         (selectedCourse.discountPrice || selectedCourse.price) - couponDiscount : 0;
-      
-      // Prepare data for API
       const registrationData = {
         ...formData,
-        finalPrice: finalPrice.toString()
+        finalPrice: finalPrice.toString(),
+        courseId: formData.courseId, // Keep as number
+        category: formData.category || ''
       };
-      
+
       // Send registration data to API
       const response = await fetch('/api/register', {
         method: 'POST',
@@ -286,25 +281,54 @@ export default function MultiStepRegisterForm() {
         },
         body: JSON.stringify(registrationData),
       });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        setFormStatus({
-          submitted: true,
-          success: true,
-          message: result.message || 'Registration successful! You will receive a confirmation email shortly.'
-        });
-      } else {
-        throw new Error(result.error || 'Registration failed');
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
       }
+
+      // Update form status
+      setFormStatus({
+        submitted: true,
+        success: true,
+        message: 'Registration successful!'
+      });
+
+      // Reset form
+      setFormData({
+        category: '',
+        courseId: 0,
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        gender: '',
+        dateOfBirth: '',
+        address: '',
+        city: '',
+        postalCode: '',
+        highestQualification: '',
+        institution: '',
+        fieldOfStudy: '',
+        paymentMethod: '',
+        terms: false
+      });
+      setCurrentStep(0);
+      setSelectedCourse(null);
+      setFormComplete({
+        course: false,
+        personal: false,
+        education: false,
+        payment: false
+      });
     } catch (error) {
+      console.error('Error submitting form:', error);
       setFormStatus({
         submitted: true,
         success: false,
-        message: 'An error occurred while submitting your registration. Please try again.'
+        message: 'Registration failed. Please try again.'
       });
-      console.error('Error submitting form:', error);
     }
   };
   

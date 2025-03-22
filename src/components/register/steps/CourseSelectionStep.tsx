@@ -27,19 +27,29 @@ const CourseSelectionStep: React.FC<CourseSelectionStepProps> = ({
     } else {
       setFilteredCourses(courses);
     }
-  }, [formData.category, courses]);
+  }, [formData.category]);
 
   // Update selected course when courseId changes
   useEffect(() => {
     if (formData.courseId) {
       const course = courses.find(course => course.id === formData.courseId) || null;
       setSelectedCourse(course);
+      // Update form completion status immediately when course is selected
       setFormComplete('course', !!course);
     } else {
       setSelectedCourse(null);
       setFormComplete('course', false);
     }
-  }, [formData.courseId, courses, setFormComplete]);
+  }, [formData.courseId, setFormComplete]);
+
+  // Handle form completion status
+  useEffect(() => {
+    const completionStatus = !!selectedCourse;
+    const updateCompletion = () => {
+      setFormComplete('course', completionStatus);
+    };
+    updateCompletion();
+  }, [selectedCourse, setFormComplete]);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">

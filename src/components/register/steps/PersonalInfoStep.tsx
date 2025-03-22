@@ -19,8 +19,15 @@ const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   useEffect(() => {
     const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'gender', 'dateOfBirth', 'address', 'city', 'postalCode'];
     const isComplete = requiredFields.every(field => formData[field] && (formData[field].trim() !== ''));
-    setFormComplete('personal', isComplete);
-  }, [formData.firstName, formData.lastName, formData.email, formData.phone, formData.gender, formData.dateOfBirth, formData.address, formData.city, formData.postalCode, setFormComplete]);
+    const completionStatus = isComplete;
+    
+    // Use a callback to update form completion status
+    const updateCompletion = () => {
+      setFormComplete('personal', completionStatus);
+    };
+    
+    updateCompletion();
+  }, [formData]);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">

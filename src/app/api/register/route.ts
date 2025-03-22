@@ -85,13 +85,6 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // Store education and work experience as strings in the registration
-    const educationInfo = `${highestQualification || ''} in ${fieldOfStudy || ''} from ${institution || ''} ${yearOfCompletion ? `(${yearOfCompletion})` : ''}`;
-    
-    const workExperienceInfo = employmentStatus ? 
-      `${employmentStatus}${employer ? ` at ${employer}` : ''}${jobTitle ? ` as ${jobTitle}` : ''}${yearsOfExperience ? ` with ${yearsOfExperience} years of experience` : ''}` : 
-      '';
-    
     // Create the registration
     const registration = await prisma.registration.create({
       data: {
@@ -99,10 +92,45 @@ export async function POST(request: NextRequest) {
         courseId: parseInt(courseId),
         status: 'pending',
         finalPrice: parseFloat(finalPrice),
-        educationLevel: educationInfo.trim(),
-        workExperience: workExperienceInfo.trim(),
+        
+        // Personal Information
+        firstName,
+        lastName,
+        email,
+        phone,
+        gender,
+        dateOfBirth,
+        address,
+        city,
+        postalCode: postalCode || '',
+        
+        // Education & Experience
+        highestQualification,
+        institution,
+        fieldOfStudy,
+        yearOfCompletion,
+        employmentStatus,
+        employer,
+        jobTitle,
+        yearsOfExperience,
+        
+        // Payment Information
+        paymentMethod,
+        
+        // Legacy fields for compatibility
+        educationLevel: `${highestQualification || ''} in ${fieldOfStudy || ''} from ${institution || ''} ${yearOfCompletion ? `(${yearOfCompletion})` : ''}`.trim(),
+        workExperience: employmentStatus ? 
+          `${employmentStatus}${employer ? ` at ${employer}` : ''}${jobTitle ? ` as ${jobTitle}` : ''}${yearsOfExperience ? ` with ${yearsOfExperience} years of experience` : ''}`.trim() : 
+          '',
         specialRequirements: `Payment Method: ${paymentMethod}`,
-        couponId: null // We'll handle coupon separately if needed
+        couponId: null,
+        
+        // Additional fields
+        additionalProducts: null as any,
+        categorySpecificData: null as any,
+        hearAboutUs: null as any,
+        approvedById: null,
+        approvalDate: null
       }
     });
     
